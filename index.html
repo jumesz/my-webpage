@@ -43,6 +43,67 @@
 
   #stage{position:fixed;left:0;top:0;overflow:hidden;background:transparent}
 
+  /* 粒子层 */
+  #px{position:fixed;left:0;top:0;pointer-events:none;z-index:39999}
+
+  /* 特效层：文字炸开、涟漪 */
+  #fx{position:fixed;left:0;top:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:40000}
+  #fx span{
+    position:absolute;display:block;text-align:center;
+    will-change:transform,opacity;
+    transform-origin:50% 50%;
+    text-shadow:0 2px 10px rgba(255,255,255,.85);
+  }
+
+  /* 彩蛋窗口：颜色更跳，带一点光晕 */
+  .win.special{
+    box-shadow:
+      0 10px 30px rgba(255,170,90,.40),
+      0 3px 8px rgba(120,80,40,.20),
+      inset 0 2px 0 rgba(255,255,255,.95),
+      0 0 0 1px rgba(255,255,255,.55);
+  }
+  .win.special .name::after{content:' ✨';font-size:.9em}
+
+  /* 彩蛋：大表情 + 文案 */
+  .eggWrap{
+    position:absolute;transform:translate(-50%,-50%);
+    transition:opacity .55s ease,transform .55s ease;
+    pointer-events:none;
+  }
+  .eggWrap.out{opacity:0;transform:translate(-50%,-50%) scale(1.3) translateY(-30px)}
+  .egg{
+    display:block;font-size:88px;line-height:1;
+    animation:eggIn .9s cubic-bezier(.16,1.5,.35,1) both;
+    filter:drop-shadow(0 14px 26px rgba(90,70,110,.22));
+  }
+  @keyframes eggIn{
+    0%{transform:scale(.15) rotate(-30deg);opacity:0}
+    45%{transform:scale(1.32) rotate(12deg);opacity:1}
+    66%{transform:scale(.92) rotate(-6deg)}
+    84%{transform:scale(1.08) rotate(2deg)}
+    100%{transform:scale(1) rotate(0)}
+  }
+  .capWrap{
+    position:absolute;transform:translate(-50%,0);
+    transition:opacity .5s ease,transform .5s ease;
+    pointer-events:none;
+  }
+  .capWrap.out{opacity:0;transform:translate(-50%,12px)}  .eggCap{
+    display:inline-block;white-space:nowrap;
+    font-size:15px;font-weight:800;letter-spacing:.04em;
+    color:#3b3346;
+    padding:6px 15px;border-radius:999px;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 6px 18px rgba(90,70,110,.18),inset 0 1px 0 rgba(255,255,255,.9);
+    animation:capIn .8s cubic-bezier(.16,1.5,.35,1) both;
+  }
+  @keyframes capIn{
+    0%{transform:scale(.5);opacity:0}
+    55%{transform:scale(1.12);opacity:1}
+    100%{transform:scale(1);opacity:1}
+  }
+
   .win{
     position:absolute;
     display:flex;flex-direction:column;
@@ -146,6 +207,82 @@
   .pick.mini{padding:8px;gap:0}
   .pick.mini .t{display:none}
   .pick.hide{opacity:0;pointer-events:none}
+
+  /* ────────── 漂流瓶 ────────── */
+  #bottle{
+    position:fixed;inset:0;z-index:46000;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    background:rgba(110,130,165,.20);
+    -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+    opacity:0;pointer-events:none;
+    transition:opacity .45s ease;
+  }
+  #bottle.show{opacity:1;pointer-events:auto}
+  .bottle-inner{
+    position:relative;
+    width:min(322px,88vw);
+    padding:22px 22px 18px;
+    border-radius:20px;
+    background:linear-gradient(168deg,#fffdf8 0%,#fbf5e8 62%,#f7efdf 100%);
+    box-shadow:
+      0 28px 64px rgba(70,70,110,.26),
+      0 2px 10px rgba(70,70,110,.12),
+      inset 0 0 0 1px rgba(255,255,255,.9);
+    transform:translateY(26px) scale(.94);
+    transition:transform .55s cubic-bezier(.2,1.15,.3,1);
+    overflow:hidden;
+  }
+  #bottle.show .bottle-inner{transform:translateY(0) scale(1)}
+  .bottle-inner::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:56px;
+    background:radial-gradient(120% 100% at 50% 100%,rgba(190,215,240,.45),rgba(255,255,255,0) 70%);
+    pointer-events:none;
+  }
+  .bottle-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .bottle-ic{width:26px;height:42px;flex:0 0 auto;animation:bob 3.4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
+  .bottle-date{
+    font-size:11.5px;font-weight:700;letter-spacing:.10em;
+    color:#9a8f7e;
+  }
+  .bottle-text{position:relative;z-index:1}
+  .bline{
+    font-size:14.5px;line-height:1.95;color:#4a4238;
+    margin:0 0 6px;opacity:0;transform:translateY(10px);
+    transition:opacity .65s ease,transform .65s cubic-bezier(.2,.9,.3,1);
+  }
+  .bline.in{opacity:1;transform:translateY(0)}
+  .bottle-expand{
+    display:none;margin:12px auto 0;padding:6px 16px;
+    border:1px solid rgba(150,140,120,.38);border-radius:999px;
+    background:rgba(255,255,255,.72);color:#8d8270;
+    font-size:11.5px;letter-spacing:.08em;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .2s,color .2s,border-color .2s;
+  }
+  .bottle-expand.show{display:inline-block}
+  .bottle-expand:active{background:rgba(255,255,255,.95)}
+  .bottle-more{
+    max-height:0;overflow:hidden;opacity:0;padding-top:0;
+    transition:max-height .5s cubic-bezier(.2,.9,.3,1),opacity .35s ease,padding-top .4s ease;
+    font-size:12.5px;line-height:1.9;color:#8b8272;
+    border-top:1px dashed rgba(165,152,130,.0);
+    margin-top:0;
+  }
+  .bottle-more.open{
+    max-height:260px;overflow-y:auto;opacity:1;padding-top:11px;
+    border-top:1px dashed rgba(165,152,130,.45);
+    margin-top:12px;
+  }
+  .bottle-more p{margin:0 0 7px}
+  .bottle-more p:last-child{margin-bottom:0}
+  .bottle-more b{font-weight:700;color:#6f6656}
+  .bottle-hint{
+    margin-top:12px;text-align:center;
+    font-size:11px;letter-spacing:.14em;color:#b3a894;
+    opacity:0;transition:opacity .6s ease;
+  }
 </style>
 </head>
 <body>
@@ -158,12 +295,31 @@
   <div id="hot"></div>
 </div>
 <div id="stage"></div>
+<canvas id="px"></canvas>
+<div id="fx"></div>
 
 <div id="intro">
   <div class="card">
-    <h1>冬日快乐</h1>
+    <h1>冬日快乐，小刘同学</h1>
     <p>你有一份来自张佑旭的冬日礼物，确定是否打开。</p>
     <button class="open" id="openBtn">打 开</button>
+  </div>
+</div>
+
+<div id="bottle">
+  <div class="bottle-inner">
+    <div class="bottle-top">
+      <svg class="bottle-ic" viewBox="0 0 40 64" aria-hidden="true">
+        <path d="M15 2h10v5c0 2-1 3-1 5v3c6 3 9 8 9 15v24c0 5-4 8-9 8H16c-5 0-9-3-9-8V30c0-7 3-12 9-15v-3c0-2-1-3-1-5V2z" fill="#DDEEFF" stroke="#A9C6E0" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M13 29h14v19H13z" fill="#FFF7E4" stroke="#E2D5B9" stroke-width="1"/>
+        <path d="M16 2h8v5h-8z" fill="#E8C9A0" stroke="#C9A97C" stroke-width="1.2"/>
+      </svg>
+      <div class="bottle-date" id="bottleDate"></div>
+    </div>
+    <div class="bottle-text" id="bottleText"></div>
+    <div class="bottle-more" id="bottleMore"></div>
+    <div style="text-align:center"><button class="bottle-expand" id="bottleExpand">展开细节 ▾</button></div>
+    <div class="bottle-hint" id="bottleHint">轻触屏幕收好</div>
   </div>
 </div>
 
@@ -196,38 +352,587 @@
   ];
 
   var PHRASES = [
-    '遇见你，是我最大的幸运','保持好心情','期待下一次见面','你值得所有的美好',
-    '我在原地，等你归来','愿你永远笑得灿烂','好好爱自己','想你了，不止今天',
-    '你是我想见的人','愿你被世界温柔以待','今天也是爱你的一天','天天开心',
-    '多喝水','不要难过','早点休息','记得吃饭','慢慢来','会好起来的',
-    '你已经很棒了','今天也很好','抱抱你','别熬夜','深呼吸','出门带伞',
-    '天冷加衣','多晒太阳','笑一个','没关系的','我在呢','放轻松',
-    '夸夸你','好运常在','平安喜乐','万事顺遂','心想事成','身体健康',
-    '睡个好觉','吃饱饱','记得微笑','别硬撑','允许自己','先照顾好自己',
-    '你值得','小小进步','今天辛苦啦','喝口热水','伸个懒腰','看看天空',
-    '风很温柔','会有光的','不必着急','你可以的','别怕','安静一会',
-    '慢慢变好','值得被爱','好好生活','愿你开心','顺顺利利','加油鸭',
-    '元气满满','甜甜的一天','已经很厉害了','休息一下吧','别忘了吃饭','记得抬头',
-    '听听歌','抱一抱','明天会更好','一直陪你','想吃什么','出去走走',
-    '晒晒太阳','早点回家','你好呀','要开心哦','一切都好','顺其自然',
-    '别太累','万事胜意','岁岁平安','天天好心情','记得保暖','愿你被偏爱',
-    '星河滚烫','未来可期','好事将近','都会过去的','你很好','谢谢你',
-    '永远偏爱你','你笑起来真好看','世界会温柔对你','慢慢喜欢你','今天也要开心','早点睡，晚安',
-    '有我在','别担心','加油','你最棒','相信你','慢慢说','我听你说','给你抱抱',
-    '今天也平安','记得休息','喝水了吗','吃点甜的','给自己买束花','路上小心','不要逞强',
-    '你很温柔','被爱包围','万事顺心','烦恼走开','今天运气不错','心之所愿','无事绊心弦',
-    '所念皆如愿','岁岁欢愉','年年胜意','一切顺利','明天见','晚安好梦','早安'
+    '遇见你真好',    '晚安啦小刘同学',    '喵',    'oi',
+    '666',    '逆天',    '哈哈哈哈',    '嗯嗯',
+    '我猫在读你的消息',    '它"摁"了一声跑开',    '再也不摸猫了',    '狂犬疫苗第二针',
+    '你一直想有只猫',    '每种猫猫都可爱',    '你家养了几只',    '那鸟看到我妹就跑',
+    '一缸鱼还在',    '鸟今天又没回来',    '喂鸟一天要喂好几次',    '你手真稳',
+    '随身WiFi',    '我先去写作业',    '消息免打扰了',    '别嫌我啰嗦',
+    '再刷两集棋魂',    '棋魂看到第几集了',    '今晚跑图吗',    '带你拿先祖',
+    '嫡崽带路',    '一起开图',    '雨林等你',    '别在云野迷路',
+    '蜡烛记得领',    '我上线了',    '光遇任务还没做',    '一起看落日',
+    '你光遇还开着吗',    '先祖刷新了',    '今天拍了什么',    '给你看张原片',
+    '延时拍到了',    '云海给你留着',    '泰山日出发你了',    '雪山就在窗边',
+    '月食23:28开始',    '陨石坑拍到了',    '五块电池两台机',    '这个角度好看',
+    '帮你挑个机位',    '记得开夜景模式',    '光比太大了',    '这张可以当壁纸',
+    '将乐其实挺美的',    '山里的雾散了',    '蜡烛山等你',    '鱼芳的水不错',
+    '算半个老乡了',    '山的那边',    '村子里信号差',    '城里的灯太亮',
+    '老家的星星多',    '从山里出来的人',    '活着看完了吗',    '堂吉诃德还没拆',
+    '我与地坛',    '史铁生写得真好',    '你上次说的那本书',    '书页里夹了片叶子',
+    '想大学去有山有水的地方',    '物理上到哪了',    '数学卷子拍给我',    '中考都过去了',
+    '作业写完了吗',    '网课听不下去',    '这次考得不错',    '明天还有早读',
+    '英语句子发我',    '班级排名出来了吗',    '别熬太晚',    '39度还嘴硬',
+    '快点去医院',    '多穿一件',    '手别冻着',    '冬日快乐',
+    '记得喝热水',    '被窝暖了吗',    '打针别怕',    '我陪你去',
+    '药吃了吗',    '烧退了吗',    '早点睡',    '手机关了睡吧',
+    '我在这儿',    '想你了',    '你笑起来好看',    '慢慢来',
+    '你很重要',    '是我最大的幸运',    '山海相隔也算近',    '我在山这边',
+    '一直陪你',    '你值得所有美好',    '愿你被世界温柔以待',    '今天也很好',
+    '抱抱你',    '深呼吸',    '别硬撑',    '允许自己',
+    '先照顾好自己',    '小小进步',    '今天辛苦啦',    '喝口热水',
+    '伸个懒腰',    '看看天空',    '风很温柔',    '会有光的',
+    '不必着急',    '你可以的',    '别怕',    '安静一会',
+    '慢慢变好',    '值得被爱',    '好好生活',    '愿你开心',
+    '顺顺利利',    '加油鸭',    '元气满满',    '甜甜的一天',
+    '已经很厉害了',    '休息一下吧',    '别忘了吃饭',    '记得抬头',
+    '听听歌',    '抱一抱',    '明天会更好',    '想吃什么',
+    '出去走走',    '晒晒太阳',    '早点回家',    '你好呀',
+    '要开心哦',    '一切都好',    '顺其自然',    '别太累',
+    '万事胜意',    '岁岁平安',    '天天好心情',    '记得保暖',
+    '愿你被偏爱',    '星河滚烫',    '未来可期',    '好事将近',
+    '都会过去的',    '你很好',    '谢谢你',    '永远偏爱你',
+    '你笑起来真好看',    '世界会温柔对你',    '慢慢喜欢你',    '今天也要开心',
+    '晚安好梦',    '早安',    '有我在',    '别担心',
+    '加油',    '你最棒',    '相信你',    '慢慢说',
+    '我听你说',    '给你抱抱',    '今天也平安',    '记得休息',
+    '喝水了吗',    '吃点甜的',    '给自己买束花',    '路上小心',
+    '不要逞强',    '你很温柔',    '被爱包围',    '万事顺心',
+    '烦恼走开',    '今天运气不错',    '心之所愿',    '无事绊心弦',
+    '所念皆如愿',    '岁岁欢愉',    '年年胜意',    '一切顺利',
+    '明天见',    '天气预报说降温',    '雪落下来了吗',    '你那件外套够暖吗',
+    '冬天的第一杯热饮',    '手怎么这么凉',    '把手给我',    '别一个人扛',
+    '考完去吃好吃的',    '晚自习下课了吗',    '到家记得说一声',    '早饭吃了吗',
+    '午饭别对付',    '今天有没有有趣的事',    '你说的每句我都记着',    '你上次说的那个梗',
+    '别笑我土',    '再讲一遍那个故事',    '你刚才说啥没听清',    '语音再来一条',
+    '字打慢点我在看',    '你在忙吗',    '不打扰你学习',    '有事就喊我',
+    '随时都在',    '你一叫我就在',    '我等你消息',    '怎么还不回',
+    '算了我先睡',    '晚安明天再说',    '早睡的人运气好',    '起床了吗',
+    '今天也要好好的',    '你昨天几点睡的',    '别又熬夜剪片子',    '相机充电了吗',
+    '内存卡带了吗',    '三脚架别忘了',    '出门带伞',    '天冷加衣',
+    '多喝热水',    '记得吃饭',    '不要难过',    '早点休息',
+    '笑一个',    '没关系的',    '我在呢',    '放轻松',
+    '夸夸你',    '好运常在',    '平安喜乐',    '万事顺遂',
+    '心想事成',    '身体健康',    '睡个好觉',    '吃饱饱',
+    '记得微笑',    '别熬夜',    '抱一抱吧',    '冬天会过去的',
+    '春天一起去看花',    '夏天去看海',    '秋天捡叶子',    '四季都想和你一起',
+    '第一次聊天到凌晨',    '你回消息真快',    '原来你也在等',    '要不要出来走走',
+    '下次带你去',    '说好了啊',    '不许反悔',    '我记仇的',
+    '你这个小骗子',    '别装傻',    '真拿你没办法',    '又怎么了',
+    '笑死我了',    '你赢了',    '服了你了',    '我认输',
+    '好家伙',    '真的假的',    '离谱',    '绝了',
+    '妙啊',    '有道理',    '确实',    '是呀',
+    '那必须的',    '必须的',    '安排',    '稳',
+    '问题不大',    '包在我身上',    '来了来了',    '在路上',
+    '马上到',    '等我两分钟',    '我到了',    '你人呢',
+    '看见了',    '在门口',    '别急',    '慢慢来嘛',
+    '你先吃',    '我等你',    '一起走',    '下次一起',
+    '改天约',    '有空吗',    '今晚有空吗',    '周末呢',
+    '放假了吗',    '开学了吗',    '寒假有什么打算',    '新年快乐',
+    '元旦快乐',    '圣诞快乐',    '生日快乐',    '元宵节快乐',
+    '中秋快乐',    '跨年一起',    '今年也要一起',    '明年也一起',
+    '一直一起',    '说定了',    '拉钩',    '不许骗人',
+    '我相信你',    '我信你',    '有你在真好',    '认识你真好',
+    '谢谢你来',    '别走太远',    '别忘了我',    '我会想你的',
+    '想我了吗',    '我也想你',    '第一句你好',    '那句晚安',
+    '深夜的那条消息',    '476条，107天',    '从夏天到冬天',    '你的名字很好听',
+    '刘同学',    '小刘',    '焉有漆',    '紫人',
+    '绿人',    'MBTI说我们不配',    '但我偏要',    '别理他们',
+    '管他们呢',    '我就要你',    '不后悔',    '再来一次也选你',
+    '你问我为什么',    '因为是你',    '因为你笑',    '因为你在这儿',
+    '冬天很冷',    '但有你',    '就不冷了',    '这份礼物',
+    '拆开吧',    '慢慢拆',    '里面有我',    '有这一年',
+    '有我们'
+    ,    '真心话券'    ,'说开的那天'    ,'把问题说开'    ,'不想断联'    ,'交一个朋友很难'    ,'抹去一个人的痕迹很难'    ,'有些东西要时间消化'    ,'边界感特别重要'    ,'那还能是谁呢'    ,'失去你这个朋友'    ,'我尊重你的选择'    ,'我也忍着没来找你'    ,'高敏人格'    ,'那次麻辣烫'    ,'借你校服那次'    ,'同一把小伞'    ,'第一次说开'    ,'谢谢你还愿意'    ,'我们都没错'    ,'只是表达不一样'    ,'向前看吧'    ,'状元烧烤'    ,'萤火虫漫展'    ,'广州'    ,'大学城'    ,'把话说开就好了'    ,'南方的雨'    ,'梅雨季'    ,'雨会把声音吃掉'    ,'坐垫湿了一片'    ,'空荡的长廊'    ,'楼梯成了瀑布'    ,'公路车那条路'    ,'每个坑我都记得'    ,'雨下小了心也小了'    ,'雨停了'    ,'屋檐下'    ,'同一把伞'    ,'食堂的黄金一小时'    ,'那棵枣树'    ,'路灯下的枝干'    ,'白汽散开'    ,'嘴巴冻得发麻'    ,'操场越来越冷'    ,'一起走过一场雨'    ,'腊月的雪'    ,'中考那天的雨'    ,'小城'    ,'走出这座小城'    ,'她放慢半步'    ,'并排的脚印'    ,'不要越界'    ,'把手停在半空'    ,'留一点空隙'    ,'克制'    ,'边界感'    ,'那节课'    ,'黑板上的三个字'    ,'沉默'    ,'没有回音'    ,'点开又退出'    ,'删了又打'    ,'不敢多说一句'    ,'怕打扰'    ,'好久没说话'    ,'你终于回了'    ,'和解'    ,'雨过之后'    ,'刻名字的伞'    ,'手心捧着的心'    ,'冬日傍晚'    ,'互送礼物'    ,'新华书店'    ,'作业摞成的脑袋'    ,'乌压压的人群'    ,'那碗麻辣烫'    ,'一碗汤底很香'    ,'你说以后少见'    ,'我没接话'    ,'有一个人陪你走过一场雨'    ,'再来时无惧风雨'    ,'更加完整的心'    ,'谢谢你那时候等我'
+    ,'见字如晤'    ,'展信佳'    ,'念君心切'    ,'写相思也写闲愁'    ,'夜深窗外风寒'    ,'西伯利亚的寒流'    ,'大兴安岭的秋'    ,'扎龙湿地'    ,'呼伦贝尔'    ,'额尔古纳的夜'    ,'根河在侧'    ,'银河从地平线升起'    ,'躺在草地上看星星'    ,'天特别大'    ,'群星要把我吞没'    ,'呼伦湖的风'    ,'干旱草原上的海'    ,'331卡线'    ,'金沙山的玛瑙'    ,'断崖上的风'    ,'铁锅炖'    ,'中国最北'    ,'最北邮局'    ,'替你问候天地'    ,'草原带来的正礼'    ,'这风真冷'    ,'星空下想你'    ,'一路向北'    ,'寄一封信给你'    ,'等你几个世纪'    ,'下次想见你就直接说'    ,'我想见你了'    ,'别用玩笑说真心话'    ,'真心话要好好说'    ,'我不想再绕圈子了'    ,'我其实就是想你了'    ,'那时候我应该直说的'    ,'以前总把真话包在玩笑里'    ,'现在我想好好说一次'    ,'你对我很重要'    ,'我很在乎你'    ,'有你在我不孤单'    ,'别装作不在意'    ,'这次我不绕了'    ,'我认真说的'    ,'十月十九号'    ,'那天你拉着我去争取'    ,'我本来已经认了'    ,'一个一个办公室地跑'    ,'有人替我撑腰'    ,'我做梦都笑醒了'    ,'真正清晰且获得'    ,'那天特别开心'    ,'谢谢你替我争'    ,'不公平也没关系'    ,'有你在我不怕'    ,'你比我还急'    ,'被撑腰的感觉'    ,'我记一辈子'    ,'那天的风很凉'    ,'反而要感谢你'    ,'运气不好也没关系'    ,'命运的安排'    ,'看清不一样的东西'    ,'这条路有你'    ,'你陪我走过这一趟'    ,'这一趟是你陪我走的'    ,'是你拉着我走完的'    ,'我想和你进同一个班'    ,'那一年我拼命读书'    ,'有一半是为了你'    ,'想和你做同学'    ,'近的会倦远的会陌生'    ,'不要靠近我'    ,'也不要离我而去'    ,'说话太直'    ,'以为对方接得住'    ,'受了伤也没说'    ,'距离一近就露馅'    ,'一闲下来就想'    ,'高敏感'    ,'缺乏勇气'    ,'低谷相见'    ,'患难之交'    ,'无人机'    ,'爬山看日出'    ,'闹掰了'    ,'我想往前走'    ,'心理学'    ,'哲学'    ,'文学'    ,'我这样是不是正常的'    ,'夜里躲不过'    ,'黑色生命力'    ,'难受但不会被打败'    ,'从黑里长出来'    ,'我还站着'    ,'打不败我'    ,'在最黑的地方也能长'    ,'我想带你去旅行'    ,'再走一遍'    ,'只要你在就行'    ,'等我去接你'    ,'去哪儿都行'    ,'高三之后去旅行'    ,'我有个梦想'    ,'把四季都耽误了'    ,'呼伦贝尔的秋天'    ,'最美的季节'    ,'什么样的前途'    ,'入秋了'    ,'川西的雪山'    ,'飞驰人生3'    ,'毕业之后带你去川西'    ,'那条公路'    ,'看雪山'
   ];
+
+  var BOTTLES = [
+  { d:'新生群', l:[
+    '初三那个暑假，我们在学校的新生群里认识。',
+    '那么多人，我们的第一句话只是：',
+    '「你好呀。」「你好，你好。」',
+    '那时候我还不知道，这个人会陪我走完整个高中。'
+  ] },
+  { d:'第一句话', l:[
+    '「你是本届初三高一的吗？」',
+    '「是的。」',
+    '「你呐？」',
+    '现在想想，一切的开始就是这三句。',
+    '这是 2025 年 7 月 24 日晚上、新生群里加好友后的头两句：22:18 她发"你好呀"，四分钟后他回"你好，你好"。'
+  ], m:['这是 2025 年 7 月 24 日晚上、新生群里加好友后的头两句：22:18 她发"你好呀"，四分钟后他回"你好，你好"。'] },
+  { d:'2025.07.24  晚上', t:'你好，你好', l:[
+    '那天晚上十点十八分，你回了我一句"你好，你好"。',
+    '我到现在都记得，屏幕上跳出来的那个地球。',
+    '那时候我还不知道，这一句之后，会有一整个夏天。'
+  ] },
+  { d:'2025.07.24  深夜', t:'泰山日出', l:[
+    '"将乐其实也挺美的。"',
+    '"再给你看一个泰山日出。"',
+    '你把山、把云、把日出，一样一样搬到我眼前。',
+    '好像只要你说好看，我就真的看见了。'
+  ] },
+  { d:'泰山日出', l:[
+    '「再给你看一个泰山日出。」',
+    '你把山、把云、把太阳，一样一样搬到我眼前。',
+    '那时候我就想说：',
+    '以后真想带你去看一次。'
+  ] },
+  { d:'晚安张同学', l:[
+    '那天你把长白山的雪、泰山的日出，一张张发给我看。',
+    '看到最后我说：不早啦，我有点困了。',
+    '「晚安张同学，做个好梦。」',
+    '那是我第一次觉得，晚安这两个字是有温度的。',
+    '那天他刚发完长白山和泰山日出的照片，她说"不早啦，我有点困了"，然后第一次叫他"张同学"。'
+  ], m:['那天他刚发完长白山和泰山日出的照片，她说"不早啦，我有点困了"，然后第一次叫他"张同学"。'] },
+  { d:'我可以存图嘛', l:[
+    '「我可以存图嘛。」',
+    '「当然，不要商用就可以。」',
+    '后来我的相册里，多了一整座长白山。'
+  ] },
+  { d:'拍些照片给我看', l:[
+    '「可以拍些照片给我看嘛。」',
+    '「带好看的照片回来。」',
+    '从那以后我拍东西，总会先想一句：这张她会不会喜欢。'
+  ] },
+  { d:'2025.07.28  凌晨', t:'剪到凌晨', l:[
+    '"昨天晚上后面睡不着，剪到凌晨剪出来的。"',
+    '你把一整个夜里的时间，剪成了一段视频给我。',
+    '后来我才明白，愿意为你熬夜的人，是认真的。'
+  ] },
+  { d:'你在门口站一会儿', l:[
+    '「你在门口站一会儿，我看看能不能看到你。」',
+    '那天我们隔着一段路，谁也没真的看清谁。',
+    '可我站在那儿的时候，心跳得很响。',
+    '2025 年 8 月 1 日傍晚，她突然说："你在门口站一会儿，我看看能不能看到你。"'
+  ], m:['2025 年 8 月 1 日傍晚，她突然说："你在门口站一会儿，我看看能不能看到你。"'] },
+  { d:'2025.08.05  傍晚', t:'带你去拿先祖', l:[
+    '"我带你去拿这个季节的先祖。"',
+    '那天晚上，你在雨林里等我。',
+    '我跟着你飞，一次都没迷路。',
+    '那天傍晚她说要带他去拿这个季节的先祖，又说"不过我找个先祖就要出去玩"。'
+  ], m:['那天傍晚她说要带他去拿这个季节的先祖，又说"不过我找个先祖就要出去玩"。'] },
+  { d:'嫡崽带你跑图', l:[
+    '「OK，享受我嫡崽带你跑图。」',
+    '那天晚上你带着我，在雨林里穿来穿去。',
+    '我记不清拿了几个先祖，',
+    '只记得你一直回头等我。',
+    '"嫡崽"是她对他的称呼。这句是 2026 年 2 月 9 日上午，她带他跑光遇时说的。'
+  ], m:['"嫡崽"是她对他的称呼。这句是 2026 年 2 月 9 日上午，她带他跑光遇时说的。'] },
+  { d:'是真实的晚安吗', l:[
+    '「晚安。」',
+    '「是真实的晚安吗？」',
+    '「不一定。」「看我能不能把我妈骗到手。」',
+    '那天我笑到很晚。',
+    '2025 年 8 月 3 日深夜，她说完晚安，他追问"是真实的晚安吗"，她回"不一定"，还补了句要去把她妈骗来陪睡。'
+  ], m:['2025 年 8 月 3 日深夜，她说完晚安，他追问"是真实的晚安吗"，她回"不一定"，还补了句要去把她妈骗来陪睡。'] },
+  { d:'2025.08.19  夜里', t:'晚安啦小刘同学', l:[
+    '那天你说："晚安啦小刘同学。"',
+    '就五个字，我盯着看了很久。',
+    '原来被人好好道晚安，是这种感觉。',
+    '2025 年 8 月 19 日 22:12，她发来五个字："晚安啦小刘同学。"'
+  ], m:['2025 年 8 月 19 日 22:12，她发来五个字："晚安啦小刘同学。"'] },
+  { d:'2025.08.21  中午', t:'我与地坛', l:[
+    '"你有看过史铁生写的书吗？"',
+    '从那以后，《我与地坛》就摆在了我桌上。',
+    '你说，活着这本书让你缓不过来。',
+    '我想说，认识你这件事，也让我缓不过来。',
+    '那天中午他问她有没有看过史铁生，后来《我与地坛》真的出现在了他桌上。'
+  ], m:['那天中午他问她有没有看过史铁生，后来《我与地坛》真的出现在了他桌上。'] },
+  { d:'2025.09.06  夜里', t:'今晚有月食', l:[
+    '"听说今天有月食，你知道吗？"',
+    '"我查了一下，23:28开始预热，0:28正式偏食。"',
+    '你在屏幕那头算着时间，我在这头抬头看天。',
+    '隔着一座城，我们看的是同一个月亮。',
+    '2025 年 9 月 6 日晚上，她发来一句"我查了一下9月7号23:28开始预热，0:28正式开始偏食"——她真的在屏幕上算好了时间。'
+  ], m:['2025 年 9 月 6 日晚上，她发来一句"我查了一下9月7号23:28开始预热，0:28正式开始偏食"——她真的在屏幕上算好了时间。'] },
+  { d:'四班和十四班', l:[
+    '开学分班，你进了四班，我在十四班。',
+    '好班和普通班之间，隔着一条走廊。',
+    '我总比你早一点出教学楼——',
+    '也许肖老头爱拖堂，也许你当时在好班，而我不在。'
+  ] },
+  { d:'食堂的黄金一小时', t:'黄金一小时', l:[
+    '你在学校上晚自习，晚饭在学校吃。',
+    '每天一放学，我们就约好一起飞奔去食堂。',
+    '食堂有台小电视，我们坐在那儿，',
+    '把存了一天的话一口气说完。',
+    '一餐饭能吃到晚自习快开始。'
+  ] },
+  { d:'操场上的白汽', l:[
+    '吃完饭，我们就去操场走。',
+    '天越来越冷，人也越来越少。',
+    '有时什么都不说，就一起往前走。',
+    '一开口，白汽就全散出来了。'
+  ] },
+  { d:'物化地', l:[
+    '选科那天，我们都填了物化地。',
+    '像是一个不用商量的约定。'
+  ] },
+  { d:'火箭班', l:[
+    '高一那一年，我把成绩一点点提上去。',
+    '后来分班，我和你进了同一个物化地的火箭班。',
+    '这件事我一直没跟别人说过——',
+    '我那么拼命读书，有一半是想和你进同一个班。'
+  ] },
+  { d:'近的会倦，远的会陌生', t:'近的会倦', l:[
+    '「近的会倦，远的会陌生。」',
+    '「不要靠近我，也不要离我而去。」',
+    '这句话我记了很久。',
+    '后来才知道，它说的就是我们。'
+  ] },
+  { d:'分到一个班之后', l:[
+    '分到一个班之后，我们能待在一起的时间变多了。',
+    '多到不用再抢那一个小时。',
+    '可距离一近，很多原本藏得住的毛病就露出来了。'
+  ] },
+  { d:'都以为对方可以接受', l:[
+    '我们说话都很直，直得像没有包边。',
+    '都以为对方接得住。',
+    '受了伤也没说，',
+    '等到说的时候，已经隔了很久。'
+  ] },
+  { d:'一闲下来就会想', l:[
+    '那段时间只要一停下来，脑子就自动开始想那些事。',
+    '所以我尽量让自己忙：拍照、剪片、走路。',
+    '可夜里躺下的时候，还是躲不过。'
+  ] },
+  { d:'患难之交', l:[
+    '我还有一个朋友，是在低谷里认识的。',
+    '我们一起玩无人机，一起爬山、等日出。',
+    '那段时间他也不想读书，',
+    '我们大概是彼此唯一能说话的人。'
+  ] },
+  { d:'闹掰', l:[
+    '后来我想往前走了，他还停在原地。',
+    '劝了很多次，没有用。',
+    '最后我们闹掰了。',
+    '这个决定我想了很久，到现在还会痛。',
+    '但我不后悔——我不能陪着他一起沉下去。'
+  ] },
+  { d:'一个人在互联网上找答案', t:'在网上找答案', l:[
+    '没人能问的时候，我就去网上找。',
+    '看心理学，看哲学，看文学。',
+    '不是想变成多厉害的人，',
+    '只是想知道：我这样，是不是正常的。'
+  ] },
+  { d:'黑色生命力', l:[
+    '我是高敏感，是会难受很久的那种人。',
+    '但我也是那种，在最黑的地方还能长出来的人。',
+    '难受不会打败我。',
+    '它只会让我更清楚，我要往哪儿走。',
+    '高敏感不是脆弱，是感受力强，也是恢复力强。'
+  ], m:['高敏感不是脆弱，是感受力强，也是恢复力强。'] },
+  { d:'有很长一段时间', l:[
+    '有一段时间，我们的对话框停在那里，很久没有新的消息。',
+    '我每天点开又退出，想说的话打了又删。',
+    '不是不想你，是怕再多一句就越界。',
+    '后来我才明白，喜欢一个人，也要学会把手停在半空。'
+  ] },
+  { d:'一百四十八天', l:[
+    '对话框安静了一百四十八天。',
+    '然后你发来一句：',
+    '「给个地址给你寄张信。」',
+    '那句话我看了很多遍。',
+    '3 月 15 日之后，聊天记录空了整整 148 天。8 月 10 日下午 17:38，他发来第一句："给个地址给你寄张信。"'
+  ], m:['3 月 15 日之后，聊天记录空了整整 148 天。8 月 10 日下午 17:38，他发来第一句："给个地址给你寄张信。"'] },
+  { d:'语文课上的那篇作文', t:'那篇作文', l:[
+    '老师在黑板上写下"边界感"三个字。',
+    '我坐在下面，脑子里全是那段没有回音的日子。',
+    '原来留住一个人，不是把对方围起来，',
+    '而是留出让她可以呼吸的空隙。',
+    '下课之后，我们终于又说话了。'
+  ] },
+  { d:'说开的那天', l:[
+    '「我当时其实特别纳闷。」',
+    '「我也挺高敏感的，不过我也忍着没来找过你。」',
+    '「我其实也不想断联的。」',
+    '「你知道交一个朋友有多难，要抹去一个人的痕迹也很难。」'
+  ] },
+  { d:'萍姐说的边界感', l:[
+    '「我不是在指责任何人，我只是想把问题说开。」',
+    '「有些东西需要时间去消化。」',
+    '「边界感特别重要。」',
+    '「向前看吧。」'
+  ] },
+  { d:'那还能是谁呢', l:[
+    '「这个故事的另一个人是我吗？」',
+    '「那还能是谁呢。」',
+    '「失去你这个朋友，我也是失去了特别多。」'
+  ] },
+  { d:'雨里写的话', l:[
+    '「有一个人陪你走过一场雨，就已足够。」',
+    '「南方的雨会把人的心下小，小得只能装下一个东西。」',
+    '「再来之时我已无惧风雨，带着同样更加完整的心。」'
+  ] },
+  { d:'元旦零点', l:[
+    '2026 年的第一秒，手机震了一下。',
+    '「元旦快乐佑旭！」',
+    '后面还跟着一句：',
+    '愿你所求皆如愿，所行皆坦途。'
+  ] },
+  { d:'2026.02.17  凌晨', t:'新年快乐呀佑旭', l:[
+    '"新年快乐呀佑旭！"',
+    '凌晨两点，鞭炮声都停了。',
+    '我盯着这四个字，觉得这一年应该会很好。',
+    '2026 年 2 月 17 日零点零二分，她发来一长段新年祝福，最后一句是"新年快乐呀佑旭！"'
+  ], m:['2026 年 2 月 17 日零点零二分，她发来一长段新年祝福，最后一句是"新年快乐呀佑旭！"'] },
+  { d:'马年', l:[
+    '「旧愿皆已偿，来年有新光。」',
+    '你在零点零二分发的。',
+    '我把这句话抄在了本子上。'
+  ] },
+  { d:'你的礼物出发了', l:[
+    '三月十四号，我发了一句：你的礼物准备出发了。',
+    '是茶叶，和一本很全的地图册。',
+    '第二天下午一点半：你的礼物到了。',
+    '我没说出口的是，这两样东西我挑了很久。',
+    '2026 年 3 月 14 日下午他发"你的礼物准备出发了"，第二天 13:3x 又发"你的礼物到了"——是茶叶和一本地理图册。'
+  ], m:['2026 年 3 月 14 日下午他发"你的礼物准备出发了"，第二天 13:3x 又发"你的礼物到了"——是茶叶和一本地理图册。'] },
+  { d:'2026.10.02  中午', t:'山的那边', l:[
+    '"至此，我终于来到了妈妈说的山的那边。"',
+    '"但此处一别，那就是山海相隔。"',
+    '你说山海相隔，我说：',
+    '那我就把山和海，都走一遍去找你。',
+    '2026 年 10 月 2 日中午，他在路上写下："至此，我终于来到了妈妈说的山的那边，但此处一别那就是山海相隔。"'
+  ], m:['2026 年 10 月 2 日中午，他在路上写下："至此，我终于来到了妈妈说的山的那边，但此处一别那就是山海相隔。"'] },
+  { d:'十月十九号', l:[
+    '那天选拔，名额给了别人。',
+    '我说算了，再争也没什么用。',
+    '是你拉着我，一个办公室一个办公室地去说。',
+    '那天我才知道，有人替你撑腰是什么感觉。',
+    '2026 年 10 月 19 日，学校辩论赛选拔 4V4 只上八个人，他被换了下来，他说"我本来已经认了"。'
+  ], m:['2026 年 10 月 19 日，学校辩论赛选拔 4V4 只上八个人，他被换了下来，他说"我本来已经认了"。'] },
+  { d:'做梦都笑醒了', l:[
+    '「我现在真的特别开心，非常幸福。」',
+    '「昨天做梦都笑醒了，就算又浪费了我一个晚上。」',
+    '「今天我真正清晰且获得了我梦寐以求的。」',
+    '这是他 2026 年 10 月发的一条朋友圈，核心是：运气不好，但因为是她，反而要感谢这段运气。'
+  ], m:['这是他 2026 年 10 月发的一条朋友圈，核心是：运气不好，但因为是她，反而要感谢这段运气。'] },
+  { d:'删掉的那条消息', t:'删掉的消息', l:[
+    '那天晚上，我给老师发了一条很长的消息。',
+    '一条一条摆事实，没有骂人，也没有求。',
+    '发完，我就把他删了。',
+    '不是后悔，是不想再让它占着我的情绪。'
+  ] },
+  { d:'反而要感谢你', l:[
+    '「虽然说运气不好。」',
+    '「但正因为命运的安排，让我反而还要感谢你。」',
+    '那天本来只是我一个人认了命，是你拉着我，把这一趟走完了。',
+    '所以那些倒霉的事，我后来都不太记得了——只记得你在我旁边。',
+    '同一条朋友圈。那之后他把发给指导老师的长消息删了，也把老师删了。'
+  ], m:['同一条朋友圈。那之后他把发给指导老师的长消息删了，也把老师删了。'] },
+  { d:'状元烧烤', l:[
+    '「我现在人在状元烧烤。」',
+    '「上次也是一个人来这里，吃到凌晨。」',
+    '烧烤摊的灯很亮，人很吵。',
+    '那天我突然很想有个人坐在对面。'
+  ] },
+  { d:'2026.11.06  深夜', t:'狂犬疫苗第二针', l:[
+    '"喜提2针狂犬疫苗。""已无力。"',
+    '我一边笑一边心疼。',
+    '你那么怕打针，还硬撑着说没事。',
+    '下次被猫抓，先拍照给我，我陪你疼。',
+    '11 月 6 日深夜，她发"喜提2针狂犬疫苗""已无力"，他回"我猫正在和我一起阅读你的信息"。'
+  ], m:['11 月 6 日深夜，她发"喜提2针狂犬疫苗""已无力"，他回"我猫正在和我一起阅读你的信息"。'] },
+  { d:'我猫在读你的消息', t:'我猫在读消息', l:[
+    '「我猫正在和我一起阅读你的信息。」',
+    '「我猫"摁"的一声跑开了。」',
+    '你被猫抓了，我在屏幕这头又心疼又想笑。',
+    '其实想说的是：下次别蹲它旁边了。'
+  ] },
+  { d:'2026.11.07  晚上', t:'39度了', l:[
+    '"39度了，快点去医院啊！！"',
+    '你烧到三十九度，还在跟我贫嘴。',
+    '那一刻我才发现，',
+    '原来我比你自己还在意你。',
+    '11 月 7 日晚上他烧到 39 度，她连发"快点去医院啊！！""你家又离医院那么近"。'
+  ], m:['11 月 7 日晚上他烧到 39 度，她连发"快点去医院啊！！""你家又离医院那么近"。'] },
+  { d:'高三之后', l:[
+    '「你监护被强制退游了。」',
+    '「高三后才能上线的那种。」',
+    '那我们就把约定存到高三之后，',
+    '到时候我还在。'
+  ] },
+  { d:'我有个梦想', t:'带你去旅行', l:[
+    '我有一个梦想：等高三过去，我想带你去旅行。',
+    '很多地方我自己先去了，',
+    '但我想带着你，再走一遍。',
+    '去哪儿都行，只要你在。',
+    '你说寒暑假只能待在家里——',
+    '那就等我去接你。'
+  ] },
+  { d:'川西的雪山', t:'川西的雪山', l:[
+    '那天课上放《飞驰人生3》，放到那条路。',
+    '我说：那是川西的一条公路。',
+    '「毕业之后，我带你去那儿看雪山吧。」',
+    '真的很美。'
+  ] },
+  { d:'把四季都耽误了', t:'四季都耽误了', l:[
+    '我从呼伦贝尔回来的时候，已经快入秋了。',
+    '我说：现在是那里最美的季节，中国一线级的秋景。',
+    '可我们都没去。',
+    '到底是什么样的前途，让我们把四季都耽误了。'
+  ] },
+  { d:'帮你存着', l:[
+    '「书的话，帮你存了一些。」',
+    '你说过想看的，我都记着。',
+    '等哪天你愿意，',
+    '我把它们一本一本递给你。'
+  ] },
+  { d:'送一份心意', l:[
+    '「送你这个东西嘛，不就送一份心意。」',
+    '「我送我喜欢的，你不喜欢也没事。」',
+    '其实我挑了很久，',
+    '才挑出一个不会给你压力的礼物。'
+  ] },
+  { d:'冬天到了', l:[
+    '降温了，风把树吹得很响。',
+    '你那边也冷吧。',
+    '多穿一件，别硬撑。',
+    '冬天快乐，小刘同学。'
+  ] },
+  { d:'致刘悦', l:[
+    '「我亲爱的刘同学，见字如晤，展信佳。」',
+    '「今到中国至北，夜深窗外风寒星满天。」',
+    '「遂提笔而起，既写相思，也表闲愁。」',
+    '这是手写信《致刘悦（片段）》的开头。信从中国最北的邮局（漠河）寄出，一路是哈尔滨、扎龙、呼伦贝尔、大兴安岭、额尔古纳、呼伦湖、331 卡线。'
+  ], m:['这是手写信《致刘悦（片段）》的开头。信从中国最北的邮局（漠河）寄出，一路是哈尔滨、扎龙、呼伦贝尔、大兴安岭、额尔古纳、呼伦湖、331 卡线。'] },
+  { d:'额尔古纳的夜', l:[
+    '「我的相机就架在蒙古包外，一丘丘抹茶蛋糕般质地的草甸。」',
+    '「银河这条明星的光带，从地平线上升起。」',
+    '「天特别大，仿佛群星正在靠近，要把我吞没。」',
+    '「我没有逃，就像面对这未知的命运。」',
+    '信里写那一夜：相机架在蒙古包外，一丘丘抹茶蛋糕般的草甸，根河在侧，银河从地平线升起。'
+  ], m:['信里写那一夜：相机架在蒙古包外，一丘丘抹茶蛋糕般的草甸，根河在侧，银河从地平线升起。'] },
+  { d:'呼伦湖', l:[
+    '「干旱的草原让人嘴角开裂，突然湖风拂面。」',
+    '「出现一片一望无际的海，难免不惊叹。」',
+    '「金沙山上的玛瑙在浪的拍打下，愈发温润。」',
+    '信里写呼伦湖：干旱草原上突然出现一片海，金沙山的玛瑙被浪拍得愈发温润。'
+  ], m:['信里写呼伦湖：干旱草原上突然出现一片海，金沙山的玛瑙被浪拍得愈发温润。'] },
+  { d:'替你看过天地', l:[
+    '「他们说宏大世界可以稀释个体痛苦。」',
+    '「可我在西伯利亚的寒风中，想起了你。」',
+    '「顿时感觉这寒风也不是那么冷了。」',
+    '信里那句："他们说宏大世界可以稀释个体痛苦，可我在西伯利亚的寒风中，我却想起了你。"'
+  ], m:['信里那句："他们说宏大世界可以稀释个体痛苦，可我在西伯利亚的寒风中，我却想起了你。"'] },
+  { d:'从中国最北寄出', t:'最北邮局', l:[
+    '「我已经替你问候了此番天地。」',
+    '「他说会等你几个世纪，记着你的好。」',
+    '「他托我给你带了草原的正礼。」',
+    '这封信，是在中国最北的邮局寄出的。',
+    '信的结尾：他替她问候了此番天地，说这天地会等她几个世纪，还托他带了草原的正礼。'
+  ], m:['信的结尾：他替她问候了此番天地，说这天地会等她几个世纪，还托他带了草原的正礼。'] },
+  { d:'你和雪', l:[
+    '「你和雪有一个共同点。」',
+    '「你会流下小泪水，雪会化成小雨水。」',
+    '「你们都会消失在我身边。」',
+    '写完这句，我停了很久。',
+    '这是他写给刘悦的一段话，不是引用别人的。'
+  ], m:['这是他写给刘悦的一段话，不是引用别人的。'] },
+  { d:'不要用玩笑说真心话', t:'别用玩笑说', l:[
+    '下次想见一个人，就直接跟他说"我想见你了"。',
+    '不要用开玩笑的口吻，说出真心话。',
+    '因为有些话绕过去一次，就可能再没有第二次机会。',
+    '所以这次我说清楚：我想你了。'
+  ] },
+  { d:'想见你', l:[
+    '以后想见谁，就直说"我想见你了"。',
+    '不要用开玩笑的口吻，把真心藏起来。',
+    '所以我现在说：',
+    '刘悦，我想见你了。'
+  ] },
+  { d:'来不及说再见', l:[
+    '他走的前两天，还在安慰家里人说没事。',
+    '没有遗书，没有最后一句，好像日子还很长。',
+    '所以我现在不想再等了——',
+    '想说的话，当天就说；想见的人，当天就去见。',
+    '2026 年 11 月，他的父亲因肝癌晚期离开。初二确诊时医生说撑不了这么久，走前十天还在谈笑，前两天还在安慰家人说没事，没有留下遗书。'
+  ], m:['2026 年 11 月，他的父亲因肝癌晚期离开。初二确诊时医生说撑不了这么久，走前十天还在谈笑，前两天还在安慰家人说没事，没有留下遗书。'] },
+  { d:'这一年', l:[
+    '从"你好"到"晚安"，',
+    '从夏天到冬天，',
+    '四百多个日夜，四千多条消息。',
+    '我想说的其实只有一句：',
+    '冬天快乐，以后也一起。'
+  ] }
+
+];
+
+
+  // 彩蛋窗口用的跳色主题
+  var SPECIAL_THEMES = [
+    { body:'#FFE6A8', bar:'#FFD97F', ink:'#4A370C', line:'rgba(120,90,20,.22)' },
+    { body:'#FFD2E2', bar:'#FFBDD3', ink:'#4A1F31', line:'rgba(120,40,70,.20)' },
+    { body:'#CBE6FF', bar:'#B4DAFF', ink:'#123050', line:'rgba(20,50,90,.20)' },
+    { body:'#D4F6CB', bar:'#BEEFB2', ink:'#1C3D16', line:'rgba(30,70,25,.20)' },
+    { body:'#E8D7FF', bar:'#D9C1FF', ink:'#33204E', line:'rgba(60,35,95,.20)' }
+  ];
+
+  // 文字 → 表情（按关键词匹配）
+  var EMOJI_RULES = [
+    [/水|喝|渴/, ['💧','🥤','🫗']],
+    [/饭|吃|甜|饱|零食/, ['🍚','🍰','🍬']],
+    [/睡|晚安|休息|困|梦/, ['🌙','💤','🛏️']],
+    [/太阳|晒|晴|阳光/, ['☀️','🌞','🌻']],
+    [/笑|开心|愉快|心情|快乐/, ['😊','😄','🎈']],
+    [/加油|棒|厉害|进步|努力|赢/, ['💪','👏','🔥']],
+    [/爱|喜欢|偏爱|心/, ['❤️','💖','💗']],
+    [/礼物|惊喜/, ['🎁','🎀','🎊']],
+    [/烟花|灿烂|绽放/, ['🎆','✨','🎇']],
+    [/星|光|未来|夜空|滚烫/, ['✨','⭐','🌟']],
+    [/花|花束|瓣/, ['🌸','💐','🌷']],
+    [/天空|云|风|温柔/, ['☁️','🌤️','🍃']],
+    [/歌|听|音乐/, ['🎵','🎧','🎶']],
+    [/平安|顺|好运|吉祥|如意|岁岁/, ['🍀','🕊️','🧧']],
+    [/健康|身体/, ['💪','🍎','🏃']],
+    [/抱|陪/, ['🤗','🫂','🧸']],
+    [/难过|哭|伤心|别怕|不怕/, ['🫂','🌈','☔']],
+    [/冬|冷|加衣|保暖/, ['🧣','☃️','🔥']],
+    [/雨|伞/, ['☔','🌂','💦']],
+    [/回家|路上|小心|早点/, ['🏠','🚶','🌆']],
+    [/明天|见/, ['🌅','👋','🌄']],
+    [/谢谢|谢/, ['🙏','💐','🥰']],
+    [/慢|安静|静/, ['🍵','🌿','🕯️']],
+    [/吃|饭/, ['🍜','🥟','🍲']]
+  ];
+  var EMOJI_FALLBACK = ['✨','💛','🎉','🌟'];
+
+  function emojiFor(text) {
+    var out = [];
+    for (var i = 0; i < EMOJI_RULES.length; i++) {
+      if (EMOJI_RULES[i][0].test(text)) {
+        var arr = EMOJI_RULES[i][1];
+        for (var k = 0; k < arr.length; k++) {
+          if (out.indexOf(arr[k]) < 0) out.push(arr[k]);
+        }
+        if (out.length >= 3) break;
+      }
+    }
+    if (!out.length) out = EMOJI_FALLBACK.slice();
+    return out.slice(0, 3);
+  }
+
+  var PARTICLE_COLORS = ['#FFB3C7','#FFD79A','#A9D6FF','#B9EFC9','#D9C2FF','#FFC4A3'];
 
   var BUBBLE = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 2h7.6c.66 0 1.2.54 1.2 1.2v4.1c0 .66-.54 1.2-1.2 1.2H5.4L2.9 10.6V8.5H2.2c-.66 0-1.2-.54-1.2-1.2V3.2C1 2.54 1.54 2 2.2 2z" fill="currentColor"/></svg>';
 
   var stage = document.getElementById('stage');
+  var fxEl = document.getElementById('fx');
+  var pxCanvas = document.getElementById('px');
+  var pctx = pxCanvas.getContext('2d');
   var bgEl  = document.getElementById('bg');
   var hotEl = document.getElementById('hot');
   var introEl = document.getElementById('intro');
   var openBtn = document.getElementById('openBtn');
   var pickBtn = document.getElementById('pick');
   var fileInput = document.getElementById('file');
+  var bottleEl = document.getElementById('bottle');
+  var bottleDate = document.getElementById('bottleDate');
+  var bottleText = document.getElementById('bottleText');
+  var bottleHint = document.getElementById('bottleHint');
+  var bottleMore = document.getElementById('bottleMore');
+  var bottleExpand = document.getElementById('bottleExpand');
 
   var tiles = [];
   var zTop = 10;
@@ -307,6 +1012,18 @@
   function sndDrag() {
     tone(300, 360, 0.06, 0.02, 'triangle');
   }
+  // 彩蛋音效：三连上行 + 一颗亮音
+  function sndEgg() {
+    tone(880, 880, 0.11, 0.05, 'sine');
+    setTimeout(function () { tone(1174, 1174, 0.11, 0.045, 'sine'); }, 85);
+    setTimeout(function () { tone(1568, 1568, 0.26, 0.04, 'sine'); }, 170);
+    setTimeout(function () { tone(2349, 2349, 0.18, 0.018, 'triangle'); }, 250);
+  }
+  // 漂流瓶：水滴 + 木塞"啵"
+  function sndBottle() {
+    tone(1500, 480, 0.22, 0.05, 'sine');
+    setTimeout(function () { tone(820, 260, 0.28, 0.028, 'triangle'); }, 70);
+  }
 
   /* ══════════ 背景：手指处一点点柔光（很淡） ══════════ */
   var energy = 0, hotX = 0, hotY = 0;
@@ -323,24 +1040,131 @@
   }
   function pulse(x, y) { energy = 1; hotX = x; hotY = y; }
 
+  /* ══════════ 粒子系统（canvas） ══════════ */
+  var parts = [], pxRaf = null;
+
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    pxCanvas.width = Math.max(1, Math.round(lastW * dpr));
+    pxCanvas.height = Math.max(1, Math.round(lastH * dpr));
+    pxCanvas.style.width = lastW + 'px';
+    pxCanvas.style.height = lastH + 'px';
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function tickParticles() {
+    pctx.clearRect(0, 0, lastW, lastH);
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var p = parts[i];
+      p.vy += p.g;
+      p.vx *= p.drag; p.vy *= p.drag;
+      p.x += p.vx; p.y += p.vy;
+      p.rot += p.vr;
+      p.life -= 1;
+      if (p.life <= 0) { parts.splice(i, 1); continue; }
+      var a = p.life / p.max;
+      pctx.globalAlpha = a;
+      if (p.emoji) {
+        pctx.save();
+        pctx.translate(p.x, p.y);
+        pctx.rotate(p.rot);
+        pctx.font = p.size + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+        pctx.textAlign = 'center';
+        pctx.textBaseline = 'middle';
+        pctx.fillText(p.emoji, 0, 0);
+        pctx.restore();
+      } else {
+        pctx.fillStyle = p.color;
+        pctx.beginPath();
+        pctx.arc(p.x, p.y, p.size * (0.35 + a * 0.65), 0, Math.PI * 2);
+        pctx.fill();
+      }
+    }
+    pctx.globalAlpha = 1;
+    if (parts.length) pxRaf = requestAnimationFrame(tickParticles);
+    else { pctx.clearRect(0, 0, lastW, lastH); pxRaf = null; }
+  }
+
+  function emit(x, y, text, big) {
+    var ems = emojiFor(text);
+    var nEmoji = big ? 5 : 2;
+    var nDots = big ? 16 : 9;
+    var i, ang, sp;
+
+    // 总量封顶，点太快也不会糊成一片
+    if (parts.length > 90) parts.splice(0, parts.length - 90);
+
+    for (i = 0; i < nEmoji; i++) {
+      ang = Math.random() * Math.PI * 2;
+      sp = (big ? 2.0 : 1.4) + Math.random() * (big ? 3.2 : 2.0);
+      parts.push({
+        x: x, y: y,
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 1.0,
+        g: 0.05, drag: 0.986,
+        rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.14,
+        size: (big ? 22 : 16) + Math.random() * (big ? 14 : 9),
+        emoji: ems[(Math.random() * ems.length) | 0],
+        life: 44 + Math.random() * 26, max: 0
+      });
+      parts[parts.length - 1].max = parts[parts.length - 1].life;
+    }
+
+    for (i = 0; i < nDots; i++) {
+      ang = Math.random() * Math.PI * 2;
+      sp = 1.1 + Math.random() * (big ? 4.2 : 2.8);
+      parts.push({
+        x: x, y: y,
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 0.7,
+        g: 0.09, drag: 0.984,
+        rot: 0, vr: 0,
+        size: 1.4 + Math.random() * 2.2,
+        color: PARTICLE_COLORS[(Math.random() * PARTICLE_COLORS.length) | 0],
+        life: 30 + Math.random() * 26, max: 0
+      });
+      parts[parts.length - 1].max = parts[parts.length - 1].life;
+    }
+
+    if (!pxRaf) pxRaf = requestAnimationFrame(tickParticles);
+  }
+
   /* ══════════ 窗口 ══════════ */
   function makeWindow(x, y, w, h, showNow) {
+    var isSpecial = Math.random() < 0.18;
     var fsW = clamp(Math.min(w / 7.4, h / 3.4), 10.5, 16.5);
     var maxChars = Math.max(2, Math.floor((w - 16) / (fsW * 1.02)));
-    var txt = nextPhrase();
-    if (txt.length > maxChars) {
-      for (var k = 0; k < 80; k++) {
-        var c = PHRASES[(Math.random() * PHRASES.length) | 0];
-        if (c.length <= maxChars) { txt = c; break; }
+    var txt = '';
+    var bottleIdx = -1;
+
+    if (isSpecial) {
+      // 亮色窗口的文字 = 它打开的那只瓶子的标题，点开对得上
+      bottleIdx = nextBottleIdx();
+      var bb = BOTTLES[bottleIdx];
+      txt = bb.t || bb.d;
+      var needW = txt.length * fsW * 1.02 + 20;
+      if (needW > w) {
+        x = clamp(x - (needW - w) / 2, -24, Math.max(0, lastW - needW + 24));
+        w = needW;
+        fsW = clamp(Math.min(w / 7.4, h / 3.4), 10.5, 16.5);
       }
-      if (txt.length > maxChars) txt = txt.slice(0, maxChars);
+    } else {
+      txt = nextPhrase();
+      if (txt.length > maxChars) {
+        for (var k = 0; k < 80; k++) {
+          var c = PHRASES[(Math.random() * PHRASES.length) | 0];
+          if (c.length <= maxChars) { txt = c; break; }
+        }
+        if (txt.length > maxChars) txt = txt.slice(0, maxChars);
+      }
     }
 
     var tb = Math.round(clamp(fsW * 1.18, 13, 24));
-    var th = THEMES[(Math.random() * THEMES.length) | 0];
+    var th = isSpecial
+      ? SPECIAL_THEMES[(Math.random() * SPECIAL_THEMES.length) | 0]
+      : THEMES[(Math.random() * THEMES.length) | 0];
 
     var el = document.createElement('div');
     el.className = 'win';
+    if (isSpecial) el.classList.add('special');
     el.style.setProperty('--body', th.body);
     el.style.setProperty('--bar',  th.bar);
     el.style.setProperty('--ink',  th.ink);
@@ -367,7 +1191,9 @@
     el.querySelector('.bd span').textContent = txt;
 
     stage.appendChild(el);
-    var meta = { el: el, x: x, y: y, w: w, h: h, homeX: x, homeY: y };
+    var meta = { el: el, x: x, y: y, w: w, h: h, homeX: x, homeY: y,
+                 isSpecial: isSpecial,
+                 bottleIdx: bottleIdx };
 
     if (showNow) {
       requestAnimationFrame(function () {
@@ -394,6 +1220,7 @@
     bgEl.style.height = H + 'px';
     lastW = W; lastH = H;
     placeBlobs(W, H);
+    sizeCanvas();
 
     var GS = 10;
     var GW = Math.max(1, Math.ceil(W / GS)), GH = Math.max(1, Math.ceil(H / GS));
@@ -733,11 +1560,197 @@
     finishWindow(meta);
   }
 
+  /* ══════════ 漂流瓶 ══════════ */
+  var bottleTimer = null;
+  var bottleTimers = [];
+  var bottleQueue = [];
+
+  // 最要紧的几只，前几次点开一定会轮到（按这里的顺序）
+  var PRIORITY_TITLES = ['想见你', '反而要感谢你', '你和雪', '不要用玩笑说真心话'];
+  var priorityQueue = null;
+
+  function buildPriority() {
+    priorityQueue = [];
+    for (var t = 0; t < PRIORITY_TITLES.length; t++) {
+      for (var i = 0; i < BOTTLES.length; i++) {
+        if (BOTTLES[i].d === PRIORITY_TITLES[t]) { priorityQueue.push(i); break; }
+      }
+    }
+  }
+
+  // 先发优先的，再随机不重复地抽其余的
+  function nextBottleIdx() {
+    if (priorityQueue === null) buildPriority();
+    if (priorityQueue.length) return priorityQueue.shift();
+
+    if (!bottleQueue.length) {
+      bottleQueue = [];
+      for (var i = 0; i < BOTTLES.length; i++) bottleQueue.push(i);
+      shuffle(bottleQueue);
+    }
+    return bottleQueue.pop();
+  }
+
+  function clearBottleTimers() {
+    for (var i = 0; i < bottleTimers.length; i++) clearTimeout(bottleTimers[i]);
+    bottleTimers = [];
+    if (bottleTimer) { clearTimeout(bottleTimer); bottleTimer = null; }
+  }
+
+  function closeBottle() {
+    clearBottleTimers();
+    if (!bottleEl.classList.contains('show')) return;
+    bottleEl.classList.remove('show');
+    setTimeout(function () {
+      bottleText.innerHTML = '';
+      bottleHint.style.opacity = '0';
+    }, 480);
+  }
+
+  function showBottle(idx) {
+    clearBottleTimers();
+    var b = BOTTLES[idx % BOTTLES.length];
+    bottleDate.textContent = b.t || b.d;
+    bottleDate.dataset.idx = String(idx % BOTTLES.length);
+    bottleText.innerHTML = '';
+    bottleHint.style.opacity = '0';
+    bottleEl.classList.add('show');
+    sndBottle();
+
+    // 展开细节
+    bottleMore.classList.remove('open');
+    bottleMore.innerHTML = '';
+    if (b.m && b.m.length) {
+      bottleExpand.classList.add('show');
+      bottleExpand.textContent = '展开细节 ▾';
+    } else {
+      bottleExpand.classList.remove('show');
+    }
+
+    var t = 240;
+    for (var i = 0; i < b.l.length; i++) {
+      (function (line, delay) {
+        bottleTimers.push(setTimeout(function () {
+          var p = document.createElement('p');
+          p.className = 'bline';
+          p.textContent = line;
+          bottleText.appendChild(p);
+          requestAnimationFrame(function () { p.classList.add('in'); });
+        }, delay));
+      })(b.l[i], t);
+      // 按阅读速度：每字约 105ms，行间再留一点停顿
+      t += 620 + b.l[i].length * 105;
+    }
+    bottleTimers.push(setTimeout(function () { bottleHint.style.opacity = '1'; }, t + 200));
+    bottleTimer = setTimeout(closeBottle, t + 5600);
+  }
+
+  bottleExpand.addEventListener('pointerdown', function (e) { e.stopPropagation(); }, { passive: true });
+  bottleExpand.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = bottleMore.classList.toggle('open');
+    bottleExpand.textContent = open ? '收起 ▴' : '展开细节 ▾';
+    if (open) {
+      var cur = parseInt(bottleDate.dataset.idx || '0', 10);
+      var b = BOTTLES[cur % BOTTLES.length];
+      if (b && b.m && b.m.length && !bottleMore.innerHTML) {
+        var html = '';
+        for (var i = 0; i < b.m.length; i++) html += '<p>' + b.m[i] + '</p>';
+        bottleMore.innerHTML = html;
+      }
+    }
+  });
+
+  bottleEl.addEventListener('pointerdown', function (e) {
+    e.stopPropagation();
+    closeBottle();
+  }, { passive: true });
+
+  // 窗口消失时的画面：里面的文字从原位炸开、放大、淡出
+  function burstText(el, isEgg) {
+    var span = el.querySelector('.bd span');
+    if (!span) return;
+    var r = span.getBoundingClientRect();
+    var cs = getComputedStyle(span);
+    var text = span.textContent || '';
+    var len = text.length;
+    if (!len || r.width < 4) return;
+
+    var charW = r.width / len;
+    var nodes = [];
+
+    for (var i = 0; i < len; i++) {
+      var s = document.createElement('span');
+      s.textContent = text.charAt(i);
+      s.style.left = (r.left + i * charW) + 'px';
+      s.style.top = r.top + 'px';
+      s.style.width = charW + 'px';
+      s.style.height = r.height + 'px';
+      s.style.lineHeight = r.height + 'px';
+      s.style.fontSize = cs.fontSize;
+      s.style.fontWeight = cs.fontWeight;
+      s.style.color = cs.color;
+      s.style.opacity = '1';
+      fxEl.appendChild(s);
+      nodes.push(s);
+    }
+
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+
+    // 表情 + 光点粒子
+    emit(cx, cy, text, !!isEgg);
+
+    var ring = document.createElement('span');
+    ring.style.left = cx + 'px';
+    ring.style.top = cy + 'px';
+    ring.style.width = '8px';
+    ring.style.height = '8px';
+    ring.style.margin = '-4px 0 0 -4px';
+    ring.style.borderRadius = '50%';
+    ring.style.border = '2px solid ' + cs.color;
+    ring.style.opacity = '.5';
+    fxEl.appendChild(ring);
+    nodes.push(ring);
+
+    requestAnimationFrame(function () {
+      for (var k = 0; k < len; k++) {
+        var node = nodes[k];
+        var ang = Math.random() * Math.PI * 2;
+        var dist = (isEgg ? 90 : 55) + Math.random() * (isEgg ? 210 : 130);
+        var dx = Math.cos(ang) * dist;
+        var dy = Math.sin(ang) * dist - 45;
+        var rot = (Math.random() - 0.5) * 90;
+        var sc = (isEgg ? 1.55 : 1.25) + Math.random() * (isEgg ? 1.15 : 0.85);
+        var dur = 720 + Math.random() * 420;
+        node.style.transition = 'transform ' + dur + 'ms cubic-bezier(.18,.7,.3,1), opacity ' + dur + 'ms ease-out';
+        node.style.transitionDelay = (k * 11) + 'ms';
+        node.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(' + sc.toFixed(2) + ') rotate(' + rot.toFixed(0) + 'deg)';
+        node.style.opacity = '0';
+      }
+      ring.style.transition = 'transform .75s cubic-bezier(.2,.7,.3,1), opacity .75s ease-out';
+      ring.style.transform = 'scale(' + (8 + Math.random() * 6) + ')';
+      ring.style.opacity = '0';
+    });
+
+    setTimeout(function () {
+      for (var m = 0; m < nodes.length; m++) {
+        if (nodes[m].parentNode) nodes[m].parentNode.removeChild(nodes[m]);
+      }
+    }, 1500);
+  }
+
   function finishWindow(meta) {
     var el = meta.el;
     if (el.dataset.gone) return;
     el.dataset.gone = '1';
     meta.dead = true;
+
+    burstText(el, meta.isSpecial);
+
+    // 彩蛋窗口：炸开之后，漂来一只瓶子
+    if (meta.isSpecial && meta.bottleIdx >= 0) {
+      setTimeout(function () { showBottle(meta.bottleIdx); }, 420);
+    }
 
     el.style.zIndex = String(++zTop);
     el.classList.add('out');
@@ -825,6 +1838,5 @@
   setInterval(function () { if (opened) healOnce(); }, 1100);
 })();
 </script>
-<script src="copy.js"></script>
 </body>
 </html>
