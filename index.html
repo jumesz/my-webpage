@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#eef1f6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>一份神秘的礼物</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#eef1f6}
+  body{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:none;overscroll-behavior:none;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  }
+
+  /* ────────── 苹果动态壁纸风：缓慢流动的大色团 ────────── */
+  #bg{position:fixed;left:0;top:0;overflow:hidden;background:linear-gradient(165deg,#eaf0fb 0%,#f6eef4 48%,#eef6f2 100%)}
+  .blob{
+    position:absolute;border-radius:50%;
+    filter:blur(56px);-webkit-filter:blur(56px);
+    will-change:transform;
+    opacity:.82;
+    transform-origin:50% 50%;
+  }
+  @keyframes bA{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7vw,-5vh,0) scale(1.14)}100%{transform:translate3d(0,0,0) scale(1)}}
+  @keyframes bB{0%{transform:translate3d(0,0,0) scale(1.06)}50%{transform:translate3d(-8vw,6vh,0) scale(.94)}100%{transform:translate3d(0,0,0) scale(1.06)}}
+  @keyframes bC{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-6vw,-7vh,0) scale(1.18)}100%{transform:translate3d(0,0,0) scale(1)}}
+  @keyframes bD{0%{transform:translate3d(0,0,0) scale(1.1)}50%{transform:translate3d(9vw,5vh,0) scale(.96)}100%{transform:translate3d(0,0,0) scale(1.1)}}
+  @keyframes bE{0%{transform:translate3d(0,0,0) scale(.98)}50%{transform:translate3d(4vw,8vh,0) scale(1.12)}100%{transform:translate3d(0,0,0) scale(.98)}}
+
+  #hot{
+    position:absolute;border-radius:50%;
+    background:radial-gradient(circle, rgba(255,255,255,.85) 0%, rgba(255,255,255,.25) 38%, rgba(255,255,255,0) 70%);
+    filter:blur(30px);-webkit-filter:blur(30px);
+    width:420px;height:420px;margin:-210px 0 0 -210px;
+    opacity:0;pointer-events:none;will-change:transform,opacity;
+  }
+
+  #stage{position:fixed;left:0;top:0;overflow:hidden;background:transparent}
+
+  .win{
+    position:absolute;
+    display:flex;flex-direction:column;
+    border-radius:7px;
+    overflow:hidden;
+    background:var(--body);
+    border:1px solid var(--line);
+    box-shadow:
+      0 8px 20px rgba(60,55,80,.18),
+      0 2px 5px rgba(60,55,80,.10),
+      inset 0 1px 0 rgba(255,255,255,.85);
+    opacity:0;
+    transform:scale(.78) rotate(var(--rot,0deg));
+    transition:opacity .12s ease-out,transform .18s cubic-bezier(.2,1.6,.4,1);
+    will-change:opacity,transform;
+  }
+  .win.on{opacity:1;transform:scale(1) rotate(var(--rot,0deg))}
+  .win.out{
+    opacity:0 !important;
+    transform:scale(.62) rotate(calc(var(--rot,0deg) * 2.2)) !important;
+    transition:opacity .24s ease-out,transform .30s cubic-bezier(.4,0,.7,.4) !important;
+  }
+
+  @keyframes wf0{0%{translate:0 0}26%{translate:7px -9px}52%{translate:14px 4px}78%{translate:4px 11px}100%{translate:0 0}}
+  @keyframes wf1{0%{translate:0 0}32%{translate:-11px 7px}64%{translate:-4px -12px}100%{translate:0 0}}
+  @keyframes wf2{0%{translate:0 0}24%{translate:9px 12px}58%{translate:-8px 3px}82%{translate:5px -8px}100%{translate:0 0}}
+  @keyframes wf3{0%{translate:0 0}36%{translate:-6px -10px}70%{translate:12px 6px}100%{translate:0 0}}
+
+  .tb{
+    flex:0 0 auto;height:var(--tb);
+    display:flex;align-items:center;gap:3px;
+    padding:0 5px;background:var(--bar);
+    border-bottom:1px solid var(--line);
+    color:var(--muted);white-space:nowrap;overflow:hidden;
+  }
+  .tb svg{flex:0 0 auto;width:var(--ic);height:var(--ic);opacity:.8}
+  .tb .name{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;font-size:var(--tfs);letter-spacing:.02em}
+  .tb .btns{flex:0 0 auto;display:flex;gap:2px;font-size:var(--tfs);line-height:1;opacity:.72}
+  .tb .btns i{font-style:normal}
+  .bd{flex:1 1 auto;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:hidden}
+  .bd span{font-size:var(--fs);font-weight:700;color:var(--ink);letter-spacing:.01em;white-space:nowrap;line-height:1.1}
+
+  /* ────────── 开场卡片 ────────── */
+  #intro{
+    position:fixed;inset:0;z-index:50000;
+    display:flex;align-items:center;justify-content:center;
+    padding:26px;
+    background:rgba(240,244,250,.18);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+    transition:opacity .55s ease,transform .55s ease;
+  }
+  #intro.gone{opacity:0;transform:scale(1.06);pointer-events:none}
+  .card{
+    width:min(330px,100%);
+    padding:26px 24px 22px;
+    border-radius:22px;
+    background:rgba(255,255,255,.62);
+    -webkit-backdrop-filter:blur(26px) saturate(1.4);
+    backdrop-filter:blur(26px) saturate(1.4);
+    border:1px solid rgba(255,255,255,.85);
+    box-shadow:0 22px 60px rgba(90,95,130,.22),0 2px 8px rgba(90,95,130,.10),inset 0 1px 0 rgba(255,255,255,.9);
+    text-align:center;
+    animation:cardIn .7s cubic-bezier(.2,1.1,.3,1) both;
+  }
+  @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+  .card h1{
+    font-size:21px;font-weight:800;color:#2f3340;letter-spacing:.02em;
+    margin-bottom:15px;
+  }
+  .card p{
+    font-size:14.5px;line-height:1.9;color:#5b6070;
+    margin-bottom:26px;
+  }
+  .card .open{
+    display:inline-block;
+    padding:11px 40px;border:0;border-radius:999px;
+    font-size:15px;font-weight:700;letter-spacing:.22em;
+    color:#fff;cursor:pointer;
+    background:linear-gradient(135deg,#ff9db5 0%,#ffb98a 100%);
+    box-shadow:0 10px 24px rgba(255,140,160,.38),inset 0 1px 0 rgba(255,255,255,.55);
+    transition:transform .18s ease,box-shadow .18s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card .open:active{transform:scale(.95);box-shadow:0 5px 14px rgba(255,140,160,.34)}
+
+  .pick{
+    position:fixed;left:50%;bottom:calc(11px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 15px;border-radius:999px;
+    background:rgba(70,70,90,.42);color:#fff;
+    font-size:12px;letter-spacing:.05em;
+    border:1px solid rgba(255,255,255,.45);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    transition:opacity .55s ease;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    opacity:0;pointer-events:none;
+  }
+  .pick.show{opacity:1;pointer-events:auto}
+  .pick.dim{opacity:.42}
+  .pick.mini{padding:8px;gap:0}
+  .pick.mini .t{display:none}
+  .pick.hide{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="bg">
+  <div class="blob" id="b1"></div>
+  <div class="blob" id="b2"></div>
+  <div class="blob" id="b3"></div>
+  <div class="blob" id="b4"></div>
+  <div class="blob" id="b5"></div>
+  <div id="hot"></div>
+</div>
+<div id="stage"></div>
+
+<div id="intro">
+  <div class="card">
+    <h1>冬日快乐，小刘同学</h1>
+    <p>你有一份来自张佑旭的冬日礼物，确定是否打开。</p>
+    <button class="open" id="openBtn">打 开</button>
+  </div>
+</div>
+
+<label id="pick" class="pick">
+  <input id="file" type="file" accept="image/*" hidden>
+  <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+    <rect x="1.2" y="3.4" width="13.6" height="9.2" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.25"/>
+    <circle cx="5.5" cy="6.6" r="1.15" fill="currentColor"/>
+    <path d="M2.4 11.2l3.1-3 2.3 2.15 1.9-1.8 3.4 2.85" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="t">选截图作底图</span>
+</label>
+
+<script>
+(function () {
+  'use strict';
+
+  var MIN_TOTAL = 4200, MAX_TOTAL = 6200;
+  var MAX_TILES = 92;
+  var COVER_GOAL = 0.955;
+
+  var THEMES = [
+    { body:'#FFFBF0', bar:'#F7F1E2', ink:'#3A342C', line:'rgba(60,50,35,.15)' },
+    { body:'#FFFFFF', bar:'#F4F4F2', ink:'#2E2E2E', line:'rgba(40,40,40,.13)' },
+    { body:'#FDEDEA', bar:'#F8DED9', ink:'#402D2A', line:'rgba(70,40,35,.15)' },
+    { body:'#EDF3FA', bar:'#DEE8F4', ink:'#2A333F', line:'rgba(35,50,70,.15)' },
+    { body:'#F0F6ED', bar:'#E2ECDB', ink:'#2D3529', line:'rgba(45,60,40,.15)' },
+    { body:'#F6F0FA', bar:'#ECE2F2', ink:'#372E3D', line:'rgba(55,40,65,.15)' },
+    { body:'#FFF3E6', bar:'#F9E8D3', ink:'#3E3224', line:'rgba(70,55,35,.15)' }
+  ];
+
+  var PHRASES = [
+    '遇见你，是我最大的幸运','保持好心情','期待下一次见面','你值得所有的美好',
+    '我在原地，等你归来','愿你永远笑得灿烂','好好爱自己','想你了，不止今天',
+    '你是我想见的人','愿你被世界温柔以待','今天也是爱你的一天','天天开心',
+    '多喝水','不要难过','早点休息','记得吃饭','慢慢来','会好起来的',
+    '你已经很棒了','今天也很好','抱抱你','别熬夜','深呼吸','出门带伞',
+    '天冷加衣','多晒太阳','笑一个','没关系的','我在呢','放轻松',
+    '夸夸你','好运常在','平安喜乐','万事顺遂','心想事成','身体健康',
+    '睡个好觉','吃饱饱','记得微笑','别硬撑','允许自己','先照顾好自己',
+    '你值得','小小进步','今天辛苦啦','喝口热水','伸个懒腰','看看天空',
+    '风很温柔','会有光的','不必着急','你可以的','别怕','安静一会',
+    '慢慢变好','值得被爱','好好生活','愿你开心','顺顺利利','加油鸭',
+    '元气满满','甜甜的一天','已经很厉害了','休息一下吧','别忘了吃饭','记得抬头',
+    '听听歌','抱一抱','明天会更好','一直陪你','想吃什么','出去走走',
+    '晒晒太阳','早点回家','你好呀','要开心哦','一切都好','顺其自然',
+    '别太累','万事胜意','岁岁平安','天天好心情','记得保暖','愿你被偏爱',
+    '星河滚烫','未来可期','好事将近','都会过去的','你很好','谢谢你',
+    '永远偏爱你','你笑起来真好看','世界会温柔对你','慢慢喜欢你','今天也要开心','早点睡，晚安',
+    '有我在','别担心','加油','你最棒','相信你','慢慢说','我听你说','给你抱抱',
+    '今天也平安','记得休息','喝水了吗','吃点甜的','给自己买束花','路上小心','不要逞强',
+    '你很温柔','被爱包围','万事顺心','烦恼走开','今天运气不错','心之所愿','无事绊心弦',
+    '所念皆如愿','岁岁欢愉','年年胜意','一切顺利','明天见','晚安好梦','早安'
+  ];
+
+  var BUBBLE = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.2 2h7.6c.66 0 1.2.54 1.2 1.2v4.1c0 .66-.54 1.2-1.2 1.2H5.4L2.9 10.6V8.5H2.2c-.66 0-1.2-.54-1.2-1.2V3.2C1 2.54 1.54 2 2.2 2z" fill="currentColor"/></svg>';
+
+  var stage = document.getElementById('stage');
+  var bgEl  = document.getElementById('bg');
+  var hotEl = document.getElementById('hot');
+  var introEl = document.getElementById('intro');
+  var openBtn = document.getElementById('openBtn');
+  var pickBtn = document.getElementById('pick');
+  var fileInput = document.getElementById('file');
+
+  var tiles = [];
+  var zTop = 10;
+  var rafId = null;
+  var lastW = 0, lastH = 0;
+  var opened = false;
+  var recentTexts = [];
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = (Math.random() * (i + 1)) | 0, t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function viewport() {
+    var vv = window.visualViewport;
+    var W = Math.round(vv ? vv.width : window.innerWidth) || window.innerWidth;
+    var H = Math.round(vv ? vv.height : window.innerHeight) || window.innerHeight;
+    return { W: Math.max(W, 180), H: Math.max(H, 180) };
+  }
+  function nextPhrase() {
+    for (var i = 0; i < 60; i++) {
+      var p = PHRASES[(Math.random() * PHRASES.length) | 0];
+      if (recentTexts.indexOf(p) < 0) {
+        recentTexts.push(p);
+        if (recentTexts.length > 30) recentTexts.shift();
+        return p;
+      }
+    }
+    return PHRASES[(Math.random() * PHRASES.length) | 0];
+  }
+
+  /* ══════════ 音效（Web Audio 合成，无外部文件） ══════════ */
+  var AC = null, lastSnd = 0;
+
+  function ensureAudio() {
+    if (!AC) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      try { AC = new Ctx(); } catch (e) { AC = null; }
+    }
+    if (AC && AC.state === 'suspended') { try { AC.resume(); } catch (e) {} }
+  }
+
+  function tone(freq, to, dur, gain, type) {
+    if (!AC) return;
+    var t0 = AC.currentTime;
+    var osc = AC.createOscillator();
+    var g = AC.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    if (to && to !== freq) osc.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(AC.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  }
+
+  function sndPop() {
+    var now = performance.now();
+    if (now - lastSnd < 42) return;
+    lastSnd = now;
+    tone(rand(620, 780), rand(980, 1180), 0.075, 0.035, 'sine');
+  }
+  function sndGone() {
+    tone(660, 240, 0.17, 0.045, 'sine');
+    tone(330, 180, 0.13, 0.025, 'triangle');
+  }
+  function sndOpen() {
+    tone(660, 660, 0.16, 0.05, 'sine');
+    setTimeout(function () { tone(990, 990, 0.26, 0.045, 'sine'); }, 110);
+    setTimeout(function () { tone(1320, 1320, 0.34, 0.03, 'sine'); }, 210);
+  }
+  function sndDrag() {
+    tone(300, 360, 0.06, 0.02, 'triangle');
+  }
+
+  /* ══════════ 背景：手指处一点点柔光（很淡） ══════════ */
+  var energy = 0, hotX = 0, hotY = 0;
+  function hotFrame() {
+    if (energy > 0.002) {
+      hotEl.style.opacity = (energy * 0.16).toFixed(3);
+      hotEl.style.transform = 'translate3d(' + hotX.toFixed(1) + 'px,' + hotY.toFixed(1) + 'px,0) scale(' + (0.8 + energy * 0.35).toFixed(3) + ')';
+    } else if (hotEl.style.opacity !== '0') {
+      hotEl.style.opacity = '0';
+    }
+    energy *= 0.955;
+    if (energy < 0.002) energy = 0;
+    requestAnimationFrame(hotFrame);
+  }
+  function pulse(x, y) { energy = 1; hotX = x; hotY = y; }
+
+  /* ══════════ 窗口 ══════════ */
+  function makeWindow(x, y, w, h, showNow) {
+    var fsW = clamp(Math.min(w / 7.4, h / 3.4), 10.5, 16.5);
+    var maxChars = Math.max(2, Math.floor((w - 16) / (fsW * 1.02)));
+    var txt = nextPhrase();
+    if (txt.length > maxChars) {
+      for (var k = 0; k < 80; k++) {
+        var c = PHRASES[(Math.random() * PHRASES.length) | 0];
+        if (c.length <= maxChars) { txt = c; break; }
+      }
+      if (txt.length > maxChars) txt = txt.slice(0, maxChars);
+    }
+
+    var tb = Math.round(clamp(fsW * 1.18, 13, 24));
+    var th = THEMES[(Math.random() * THEMES.length) | 0];
+
+    var el = document.createElement('div');
+    el.className = 'win';
+    el.style.setProperty('--body', th.body);
+    el.style.setProperty('--bar',  th.bar);
+    el.style.setProperty('--ink',  th.ink);
+    el.style.setProperty('--line', th.line);
+    el.style.setProperty('--muted', 'rgba(80,76,70,.70)');
+    el.style.setProperty('--fs',  fsW.toFixed(1) + 'px');
+    el.style.setProperty('--tb',  tb + 'px');
+    el.style.setProperty('--tfs', Math.max(7, Math.round(tb * 0.5)) + 'px');
+    el.style.setProperty('--ic',  Math.round(tb * 0.56) + 'px');
+    el.style.setProperty('--rot', (Math.random() < 0.45 ? rand(-2.2, 2.2) : 0).toFixed(2) + 'deg');
+    el.style.left = x.toFixed(1) + 'px';
+    el.style.top  = y.toFixed(1) + 'px';
+    el.style.width  = w.toFixed(1) + 'px';
+    el.style.height = h.toFixed(1) + 'px';
+    el.style.zIndex = String(++zTop);
+    el.style.animation = 'wf' + ((Math.random() * 4) | 0) + ' ' +
+      rand(8, 15).toFixed(1) + 's ease-in-out ' + (-rand(0, 8)).toFixed(1) + 's infinite';
+    el.innerHTML =
+      '<div class="tb">' + BUBBLE +
+        '<span class="name">love…</span>' +
+        '<span class="btns"><i>−</i><i>□</i><i>×</i></span>' +
+      '</div>' +
+      '<div class="bd"><span></span></div>';
+    el.querySelector('.bd span').textContent = txt;
+
+    stage.appendChild(el);
+    var meta = { el: el, x: x, y: y, w: w, h: h, homeX: x, homeY: y };
+
+    if (showNow) {
+      requestAnimationFrame(function () {
+        el.classList.add('on');
+        if (opened) sndPop();
+      });
+    }
+    tiles.push(meta);
+    return meta;
+  }
+
+  /* ══════════ 初始布局（贪心填格，先藏着） ══════════ */
+  function layout() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    stage.textContent = '';
+    tiles = [];
+    zTop = 10;
+
+    var vp = viewport();
+    var W = vp.W, H = vp.H;
+    stage.style.width = W + 'px';
+    stage.style.height = H + 'px';
+    bgEl.style.width = W + 'px';
+    bgEl.style.height = H + 'px';
+    lastW = W; lastH = H;
+    placeBlobs(W, H);
+
+    var GS = 10;
+    var GW = Math.max(1, Math.ceil(W / GS)), GH = Math.max(1, Math.ceil(H / GS));
+    var occ = new Uint8Array(GW * GH), covered = 0;
+    function free(gx, gy) { return gx >= 0 && gy >= 0 && gx < GW && gy < GH && occ[gy * GW + gx] === 0; }
+    function mark(x, y, w, h) {
+      var x1 = Math.max(0, Math.floor(x / GS)), x2 = Math.min(GW - 1, Math.floor((x + w - 0.01) / GS));
+      var y1 = Math.max(0, Math.floor(y / GS)), y2 = Math.min(GH - 1, Math.floor((y + h - 0.01) / GS));
+      for (var gy = y1; gy <= y2; gy++) for (var gx = x1; gx <= x2; gx++) {
+        var k = gy * GW + gx;
+        if (!occ[k]) { occ[k] = 1; covered++; }
+      }
+    }
+
+    var minW = 74, minH = 50, maxW = W * 0.40, maxH = H * 0.11;
+    var guard = 0;
+
+    while (guard < 2600 && covered / (GW * GH) < COVER_GOAL && tiles.length < MAX_TILES) {
+      guard++;
+      var gx = -1, gy = -1;
+      for (var t = 0; t < 80; t++) {
+        var tx = (Math.random() * GW) | 0, ty = (Math.random() * GH) | 0;
+        if (free(tx, ty)) { gx = tx; gy = ty; break; }
+      }
+      if (gx < 0) break;
+
+      var wA = 1, hA = 1, q;
+      while (wA < GW - gx && free(gx + wA, gy)) wA++;
+      while (hA < GH - gy) {
+        var rf = true;
+        for (q = 0; q < wA; q++) { if (!free(gx + q, gy + hA)) { rf = false; break; } }
+        if (!rf) break;
+        hA++;
+      }
+      var wB = 1, hB = 1;
+      while (hB < GH - gy && free(gx, gy + hB)) hB++;
+      while (wB < GW - gx) {
+        var cf = true;
+        for (q = 0; q < hB; q++) { if (!free(gx + wB, gy + q)) { cf = false; break; } }
+        if (!cf) break;
+        wB++;
+      }
+      var gw = (wA * hA >= wB * hB) ? wA : wB;
+      var gh = (wA * hA >= wB * hB) ? hA : hB;
+
+      var x = gx * GS, y = gy * GS;
+      var w = Math.min(clamp(gw * GS, minW, maxW), W - x);
+      var h = Math.min(clamp(gh * GS, minH, maxH), H - y);
+      if (w < 40 || h < 34) { occ[gy * GW + gx] = 1; continue; }
+
+      makeWindow(x, y, w, h, false);
+      mark(x, y, w, h);
+    }
+
+    targetCount = tiles.length;
+  }
+
+  function placeBlobs(W, H) {
+    var defs = [
+      { id:'b1', c:'#b9d4ff', x:0.18, y:0.12, s:1.05, an:'bA', d:34 },
+      { id:'b2', c:'#ffc7da', x:0.82, y:0.20, s:1.15, an:'bB', d:41 },
+      { id:'b3', c:'#ffdfae', x:0.72, y:0.84, s:1.00, an:'bC', d:37 },
+      { id:'b4', c:'#c3ead9', x:0.22, y:0.80, s:1.10, an:'bD', d:45 },
+      { id:'b5', c:'#dcc7ff', x:0.50, y:0.48, s:0.95, an:'bE', d:52 }
+    ];
+    var base = Math.max(W, H);
+    for (var i = 0; i < defs.length; i++) {
+      var d = defs[i];
+      var el = document.getElementById(d.id);
+      if (!el) continue;
+      var size = base * 1.25 * d.s;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.marginLeft = (-size / 2) + 'px';
+      el.style.marginTop = (-size / 2) + 'px';
+      el.style.left = (d.x * W) + 'px';
+      el.style.top = (d.y * H) + 'px';
+      el.style.background = 'radial-gradient(circle,' + d.c + ' 0%, ' + d.c + ' 38%, rgba(255,255,255,0) 70%)';
+      el.style.animation = d.an + ' ' + d.d + 's ease-in-out infinite';
+    }
+    hotEl.style.width = base * 1.2 + 'px';
+    hotEl.style.height = base * 1.2 + 'px';
+    hotEl.style.marginLeft = (-base * 0.6) + 'px';
+    hotEl.style.marginTop = (-base * 0.6) + 'px';
+  }
+
+  /* ══════════ 出场 ══════════ */
+  function makeSchedule(total) {
+    var times = [], t = 0, i = 0;
+    while (i < total) {
+      var r = Math.random(), burst = 1;
+      if (r > 0.84) burst = 3; else if (r > 0.55) burst = 2;
+      for (var b = 0; b < burst && i < total; b++, i++) times.push(t);
+      t += rand(0.30, 1.9);
+    }
+    var span = times[times.length - 1] || 1;
+    var target = rand(MIN_TOTAL, MAX_TOTAL);
+    for (var k = 0; k < times.length; k++) times[k] = times[k] / span * target;
+    return times;
+  }
+
+  function startShow() {
+    var order = tiles.slice();
+    shuffle(order);
+    if (!order.length) return;
+
+    if (/[?&]still=1/.test(location.search)) {
+      for (var s = 0; s < order.length; s++) order[s].el.classList.add('on');
+      return;
+    }
+
+    var times = makeSchedule(order.length);
+    var t0 = performance.now(), i = 0;
+    function tick(now) {
+      var e = now - t0;
+      while (i < order.length && times[i] <= e) {
+        order[i].el.classList.add('on');
+        if (i % 2 === 0) sndPop();
+        i++;
+      }
+      if (i < order.length) rafId = requestAnimationFrame(tick);
+      else rafId = null;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  /* ══════════ 补洞：找空洞 + 保持数量 ══════════ */
+  var targetCount = 0;
+
+  function findHoles(limit) {
+    var W = lastW, H = lastH, GS = 12;
+    var GW = Math.max(1, Math.ceil(W / GS)), GH = Math.max(1, Math.ceil(H / GS));
+    var occ = new Uint8Array(GW * GH);
+
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      if (t.dead) continue;
+      var x1 = Math.max(0, Math.floor(t.x / GS)), x2 = Math.min(GW - 1, Math.floor((t.x + t.w - 0.01) / GS));
+      var y1 = Math.max(0, Math.floor(t.y / GS)), y2 = Math.min(GH - 1, Math.floor((t.y + t.h - 0.01) / GS));
+      for (var gy = y1; gy <= y2; gy++) for (var gx = x1; gx <= x2; gx++) occ[gy * GW + gx] = 1;
+    }
+
+    var list = [];
+    for (var tries = 0; tries < 240; tries++) {
+      var sx = (Math.random() * GW) | 0, sy = (Math.random() * GH) | 0;
+      if (occ[sy * GW + sx]) continue;
+      var w = 1, h = 1, q;
+      while (sx + w < GW && !occ[sy * GW + sx + w]) w++;
+      while (sy + h < GH) {
+        var rf = true;
+        for (q = 0; q < w; q++) { if (occ[(sy + h) * GW + sx + q]) { rf = false; break; } }
+        if (!rf) break;
+        h++;
+      }
+      list.push({ x: sx * GS, y: sy * GS, w: w * GS, h: h * GS, area: w * h });
+    }
+    list.sort(function (a, b) { return b.area - a.area; });
+    return list.slice(0, limit || 5);
+  }
+
+  // 在几个洞里挑「离现有窗口最远」的那个，避免扎堆
+  function pickSpreadHole(holes) {
+    var best = null, bestScore = -1e9;
+    for (var i = 0; i < holes.length; i++) {
+      var h = holes[i];
+      var cx = h.x + h.w / 2, cy = h.y + h.h / 2;
+      var minD = 1e9;
+      for (var k = 0; k < tiles.length; k++) {
+        var t = tiles[k];
+        var dx = cx - (t.x + t.w / 2), dy = cy - (t.y + t.h / 2);
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < minD) minD = d;
+      }
+      if (minD > 1e8) minD = 420;
+      var score = minD + Math.min(h.w, h.h) * 0.35;
+      if (score > bestScore) { bestScore = score; best = h; }
+    }
+    return best;
+  }
+
+  function spawnAtHole(h) {
+    var w = clamp(h.w, 72, Math.min(152, lastW * 0.42));
+    var hh = clamp(h.h, 48, 98);
+    var x = h.x + (h.w - w) / 2;
+    var y = h.y + (h.h - hh) / 2;
+    return makeWindow(x, y, w, hh, true);
+  }
+
+  function cullOne() {
+    var worst = null, worstD = -1;
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      var cx = t.x + t.w / 2, cy = t.y + t.h / 2;
+      var d = Math.max(0, -cx, cx - lastW) + Math.max(0, -cy, cy - lastH);
+      if (d > worstD) { worstD = d; worst = t; }
+    }
+    if (!worst || worstD < 40) return false;
+    worst.dead = true;
+    worst.el.style.zIndex = String(++zTop);
+    worst.el.classList.add('out');
+    var idx = tiles.indexOf(worst);
+    if (idx >= 0) tiles.splice(idx, 1);
+    (function (node) {
+      setTimeout(function () { if (node.parentNode) node.parentNode.removeChild(node); }, 340);
+    })(worst.el);
+    return true;
+  }
+
+  // 数量对齐：少了就在最空的洞里补，多了就删最靠屏幕外的
+  function ensureCount() {
+    if (!opened) return;
+    var guard = 0;
+    while (tiles.length < targetCount && guard < 4) {
+      guard++;
+      var holes = findHoles(6);
+      if (!holes.length) break;
+      var h = pickSpreadHole(holes);
+      if (!h) break;
+      spawnAtHole(h);
+    }
+    while (tiles.length > targetCount + 3) { if (!cullOne()) break; }
+  }
+
+  function pullToward(rect, strength) {
+    var cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
+    var R = Math.max(rect.w, rect.h) * 3.0;
+    var list = [];
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      if (t.dead) continue;
+      var tcx = t.x + t.w / 2, tcy = t.y + t.h / 2;
+      var dx = cx - tcx, dy = cy - tcy;
+      var d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 1 || d > R) continue;
+      list.push({ t: t, d: d, dx: dx, dy: dy });
+    }
+    list.sort(function (a, b) { return a.d - b.d; });
+    var n = Math.min(list.length, 3);
+    for (var k = 0; k < n; k++) {
+      var it = list[k];
+      var wgt = strength * (1 - it.d / R) * 0.45;
+      var mx = clamp(it.dx * wgt, -32, 32);
+      var my = clamp(it.dy * wgt, -32, 32);
+      if (Math.abs(mx) < 2 && Math.abs(my) < 2) continue;
+      moveTo(it.t, it.t.x + mx, it.t.y + my);
+    }
+  }
+
+  // 反扎堆：找周围最挤的一个窗口，往空的一侧挪一点点
+  function spreadOnce() {
+    if (!tiles.length) return;
+    var worst = null, worstN = 0, wcx = 0, wcy = 0;
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      if (t.dead) continue;
+      var tcx = t.x + t.w / 2, tcy = t.y + t.h / 2;
+      var cnt = 0, sx = 0, sy = 0;
+      for (var k = 0; k < tiles.length; k++) {
+        if (k === i) continue;
+        var u = tiles[k];
+        var dx = (u.x + u.w / 2) - tcx, dy = (u.y + u.h / 2) - tcy;
+        if (dx * dx + dy * dy < 110 * 110) { cnt++; sx += dx; sy += dy; }
+      }
+      if (cnt > worstN) { worstN = cnt; worst = t; wcx = sx; wcy = sy; }
+    }
+    if (!worst || worstN < 5) return;
+
+    var len = Math.sqrt(wcx * wcx + wcy * wcy) || 1;
+    var push = 13;
+    var nx = worst.x - wcx / len * push;
+    var ny = worst.y - wcy / len * push;
+    moveTo(worst, nx, ny);
+  }
+
+  function moveTo(t, nx, ny) {
+    t.x = nx; t.y = ny;
+    var el = t.el;
+    el.style.transition = 'left .7s cubic-bezier(.22,.9,.32,1), top .7s cubic-bezier(.22,.9,.32,1), opacity .12s ease-out, transform .18s ease';
+    el.style.left = nx.toFixed(1) + 'px';
+    el.style.top  = ny.toFixed(1) + 'px';
+    clearTimeout(t._mt);
+    t._mt = setTimeout(function () { el.style.transition = ''; }, 740);
+  }
+
+  var healTick = 0;
+  function healOnce() {
+    if (!opened) return;
+    healTick++;
+    var holes = findHoles(4);
+    if (holes.length) {
+      var hole = pickSpreadHole(holes);
+      if (hole && hole.w >= 46 && hole.h >= 36) pullToward(hole, 0.8);
+    }
+    ensureCount();
+    if (healTick % 2 === 0) spreadOnce();
+  }
+
+  /* ══════════ 点掉 / 拖动 ══════════ */
+  var drag = null;
+
+  function onDown(e) {
+    pulse(e.clientX, e.clientY);
+    var el = e.target && e.target.closest ? e.target.closest('.win') : null;
+    if (!el || !opened) return;
+
+    var meta = null;
+    for (var i = 0; i < tiles.length; i++) { if (tiles[i].el === el) { meta = tiles[i]; break; } }
+    if (!meta) return;
+
+    el.style.zIndex = String(++zTop);
+    drag = { meta: meta, id: e.pointerId, sx: e.clientX, sy: e.clientY,
+             ox: meta.x, oy: meta.y, moved: false };
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 6) {
+      drag.moved = true;
+      pullToward({ x: drag.meta.homeX, y: drag.meta.homeY, w: drag.meta.w, h: drag.meta.h }, 0.6);
+      sndDrag();
+    }
+    if (!drag.moved) return;
+    var nx = drag.ox + dx, ny = drag.oy + dy;
+    drag.meta.x = nx; drag.meta.y = ny;
+    drag.meta.el.style.left = nx.toFixed(1) + 'px';
+    drag.meta.el.style.top  = ny.toFixed(1) + 'px';
+    pulse(e.clientX, e.clientY);
+  }
+
+  function onUp() {
+    if (!drag) return;
+    var meta = drag.meta;
+    drag = null;
+    finishWindow(meta);
+  }
+
+  function finishWindow(meta) {
+    var el = meta.el;
+    if (el.dataset.gone) return;
+    el.dataset.gone = '1';
+    meta.dead = true;
+
+    el.style.zIndex = String(++zTop);
+    el.classList.add('out');
+    sndGone();
+
+    var idx = tiles.indexOf(meta);
+    if (idx >= 0) tiles.splice(idx, 1);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 340);
+
+    var rect = { x: meta.x, y: meta.y, w: meta.w, h: meta.h };
+    setTimeout(function () { pullToward(rect, 0.95); }, 50);
+    setTimeout(ensureCount, 300);
+    setTimeout(ensureCount, 900);
+  }
+
+  /* ══════════ 底图 ══════════ */
+  var BG_URL = (function () {
+    try { var q = new URLSearchParams(location.search).get('bg'); if (q) return q; } catch (e) {}
+    return 'bg.jpg';
+  })();
+
+  function applyBg(url) {
+    bgEl.style.backgroundImage = 'linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,.14)),url("' + url + '")';
+    bgEl.style.backgroundSize = 'cover';
+    bgEl.style.backgroundPosition = 'center';
+    bgEl.style.filter = 'blur(16px) saturate(1.05)';
+    bgEl.style.webkitFilter = 'blur(16px) saturate(1.05)';
+    var bs = bgEl.querySelectorAll('.blob');
+    for (var i = 0; i < bs.length; i++) bs[i].style.opacity = '.25';
+  }
+  (function () {
+    var probe = new Image();
+    probe.onload = function () { applyBg(BG_URL); };
+    probe.src = BG_URL;
+  })();
+
+  /* ══════════ 开场 ══════════ */
+  function openGift() {
+    if (opened) return;
+    opened = true;
+    ensureAudio();
+    sndOpen();
+    try { openBtn.blur(); } catch (e) {}
+    introEl.classList.add('gone');
+    setTimeout(function () {
+      startShow();
+      pickBtn.classList.add('show');
+      setTimeout(function () { pickBtn.classList.add('dim'); }, 4200);
+    }, 260);
+  }
+
+  openBtn.addEventListener('click', openGift);
+  pickBtn.addEventListener('pointerdown', function (e) { e.stopPropagation(); }, { passive: true });
+  fileInput.addEventListener('change', function () {
+    var f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+    applyBg(URL.createObjectURL(f));
+    pickBtn.classList.add('hide');
+  });
+
+  /* ══════════ 事件 ══════════ */
+  stage.addEventListener('pointerdown', onDown, { passive: false });
+  window.addEventListener('pointermove', onMove, { passive: true });
+  window.addEventListener('pointerup', onUp, { passive: true });
+  window.addEventListener('pointercancel', onUp, { passive: true });
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  var resizeTimer = null;
+  function onResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var vp = viewport();
+      if (Math.abs(vp.W - lastW) <= 8 && Math.abs(vp.H - lastH) <= 90) return;
+      layout();
+      if (opened) {
+        for (var i = 0; i < tiles.length; i++) tiles[i].el.classList.add('on');
+      }
+    }, 240);
+  }
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', function () { setTimeout(onResize, 300); });
+
+  layout();
+  requestAnimationFrame(hotFrame);
+  setInterval(function () { if (opened) healOnce(); }, 1100);
+})();
+</script>
+</body>
+</html>
